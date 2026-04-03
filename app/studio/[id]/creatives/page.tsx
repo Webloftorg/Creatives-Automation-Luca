@@ -8,6 +8,7 @@ import { AssetGrid } from '@/components/asset-grid';
 import { LivePreview } from '@/components/live-preview';
 import { BatchPanel } from '@/components/batch-panel';
 import { CssVarSlider } from '@/components/css-var-slider';
+import { ImageGenerator } from '@/components/image-generator';
 import { replacePlaceholders, extractCssVariables } from '@/lib/template-utils';
 import { FORMAT_DIMENSIONS, ALL_FORMATS } from '@/lib/formats';
 import type { Studio, SavedTemplate, CreativeFormat, CreativeOutput } from '@/lib/types';
@@ -31,7 +32,6 @@ export default function CreativesPage() {
 
   // Style overrides
   const [cssVars, setCssVars] = useState<Record<string, string>>({});
-  const [showStylePanel, setShowStylePanel] = useState(false);
 
   // Render state
   const [outputs, setOutputs] = useState<CreativeOutput[]>([]);
@@ -41,14 +41,28 @@ export default function CreativesPage() {
   const [personAssets, setPersonAssets] = useState<string[]>([]);
   const [bgAssets, setBgAssets] = useState<string[]>([]);
 
+  // Image generation
+  const [showBgGen, setShowBgGen] = useState(false);
+  const [showPersonGen, setShowPersonGen] = useState(false);
+
+  // Left panel tab
+  const [activeTab, setActiveTab] = useState<'inhalt' | 'stil'>('inhalt');
+
+  const loadAssets = async () => {
+    const [persons, bgs] = await Promise.all([
+      fetch(`/api/assets/${studioId}?type=person`).then(r => r.json()),
+      fetch(`/api/assets/${studioId}?type=background`).then(r => r.json()),
+    ]);
+    setPersonAssets(persons);
+    setBgAssets(bgs);
+  };
+
   useEffect(() => {
     Promise.all([
       fetch(`/api/studios/${studioId}`).then(r => r.json()),
       fetch(`/api/templates?studioId=${studioId}`).then(r => r.json()),
       fetch(`/api/templates`).then(r => r.json()),
-      fetch(`/api/assets/${studioId}?type=person`).then(r => r.json()),
-      fetch(`/api/assets/${studioId}?type=background`).then(r => r.json()),
-    ]).then(([studioData, studioTemplates, allTemplates, persons, bgs]) => {
+    ]).then(([studioData, studioTemplates, allTemplates]) => {
       setStudio(studioData);
       const ids = new Set(studioTemplates.map((t: SavedTemplate) => t.id));
       const globals = allTemplates.filter((t: SavedTemplate) => !t.studioId && !ids.has(t.id));
@@ -65,10 +79,8 @@ export default function CreativesPage() {
         setSelectedTemplate(initial);
         setCssVars(extractCssVariables(initial.htmlContent));
       }
-
-      setPersonAssets(persons);
-      setBgAssets(bgs);
     });
+    loadAssets();
   }, [studioId, preselectedTemplateId]);
 
   // Apply CSS var overrides to template HTML
@@ -119,7 +131,6 @@ export default function CreativesPage() {
       });
 
       if (!res.ok) throw new Error('Render failed');
-
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
 
@@ -196,87 +207,125 @@ export default function CreativesPage() {
 
   return (
     <div className="flex h-full">
-      {/* Left: Settings Panel */}
-      <div className="w-[280px] bg-[#111] border-r border-[#222] overflow-y-auto flex-shrink-0 p-4 space-y-4">
-        {/* Template */}
-        <div>
-          <label className="text-[#888] text-xs uppercase tracking-wider">Template</label>
-          <select
-            value={selectedTemplate?.id || ''}
-            onChange={e => {
-              const t = templates.find(t => t.id === e.target.value) || null;
-              setSelectedTemplate(t);
-              if (t) setCssVars(extractCssVariables(t.htmlContent));
-            }}
-            className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2.5 text-white text-sm mt-1 outline-none"
-          >
-            {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
+      {/* Left: Editor Panel */}
+      <div className="w-[320px] bg-[#111] border-r border-[#222] flex flex-col flex-shrink-0">
+        {/* Tab switcher */}
+        <div className="flex border-b border-[#222] flex-shrink-0">
+          <button onClick={() => setActiveTab('inhalt')}
+            className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
+              activeTab === 'inhalt' ? 'text-[#FF4500] border-b-2 border-[#FF4500]' : 'text-[#666] hover:text-white'
+            }`}>
+            Inhalt
+          </button>
+          <button onClick={() => setActiveTab('stil')}
+            className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
+              activeTab === 'stil' ? 'text-[#FF4500] border-b-2 border-[#FF4500]' : 'text-[#666] hover:text-white'
+            }`}>
+            Stil
+          </button>
         </div>
 
-        {/* Format */}
-        <div>
-          <label className="text-[#888] text-xs uppercase tracking-wider mb-1.5 block">Format</label>
-          <FormatSelector selected={format} onChange={setFormat} />
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {activeTab === 'inhalt' ? (
+            <>
+              {/* Template */}
+              <div>
+                <label className="text-[#888] text-xs uppercase tracking-wider">Template</label>
+                <select
+                  value={selectedTemplate?.id || ''}
+                  onChange={e => {
+                    const t = templates.find(t => t.id === e.target.value) || null;
+                    setSelectedTemplate(t);
+                    if (t) setCssVars(extractCssVariables(t.htmlContent));
+                  }}
+                  className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2.5 text-white text-sm mt-1 outline-none"
+                >
+                  {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </select>
+              </div>
+
+              {/* Format */}
+              <div>
+                <label className="text-[#888] text-xs uppercase tracking-wider mb-1.5 block">Format</label>
+                <FormatSelector selected={format} onChange={setFormat} />
+              </div>
+
+              {/* Headline */}
+              <div>
+                <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Headline</label>
+                <div className="flex gap-1.5">
+                  <input value={headline} onChange={e => setHeadline(e.target.value)}
+                    className="flex-1 bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2.5 text-white text-sm outline-none" />
+                  <HeadlineSuggestions studioId={studioId} price={price} originalPrice={originalPrice}
+                    onSelect={setHeadline} />
+                </div>
+              </div>
+
+              {/* Prices */}
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Preis</label>
+                  <input value={price} onChange={e => setPrice(e.target.value)}
+                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2.5 text-[#FF4500] text-sm font-bold outline-none" />
+                </div>
+                <div className="flex-1">
+                  <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Streichpreis</label>
+                  <input value={originalPrice} onChange={e => setOriginalPrice(e.target.value)}
+                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2.5 text-[#888] text-sm outline-none" />
+                </div>
+              </div>
+
+              {/* Person */}
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="text-[#888] text-xs uppercase tracking-wider">Person</label>
+                  <button onClick={() => setShowPersonGen(!showPersonGen)}
+                    className="text-[#FF4500] text-xs hover:text-[#e63e00]">
+                    {showPersonGen ? 'Schliessen' : 'AI generieren'}
+                  </button>
+                </div>
+                <AssetGrid assets={personAssets} selected={selectedPerson} onSelect={setSelectedPerson} size="sm" />
+                {showPersonGen && (
+                  <div className="mt-2">
+                    <ImageGenerator studioId={studioId} assetType="person" onGenerated={() => { loadAssets(); setShowPersonGen(false); }} />
+                  </div>
+                )}
+              </div>
+
+              {/* Background */}
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="text-[#888] text-xs uppercase tracking-wider">Hintergrund</label>
+                  <button onClick={() => setShowBgGen(!showBgGen)}
+                    className="text-[#FF4500] text-xs hover:text-[#e63e00]">
+                    {showBgGen ? 'Schliessen' : 'AI generieren'}
+                  </button>
+                </div>
+                <AssetGrid assets={bgAssets} selected={selectedBg} onSelect={setSelectedBg} size="sm" />
+                {showBgGen && (
+                  <div className="mt-2">
+                    <ImageGenerator studioId={studioId} assetType="background" onGenerated={() => { loadAssets(); setShowBgGen(false); }} />
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            /* Stil Tab */
+            <CssVarSlider variables={cssVars} onChange={handleCssVarChange} />
+          )}
         </div>
 
-        {/* Headline */}
-        <div>
-          <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Headline</label>
-          <div className="flex gap-1.5">
-            <input value={headline} onChange={e => setHeadline(e.target.value)}
-              className="flex-1 bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2.5 text-white text-sm outline-none" />
-            <HeadlineSuggestions studioId={studioId} price={price} originalPrice={originalPrice}
-              onSelect={setHeadline} />
-          </div>
+        {/* Render buttons - always visible at bottom */}
+        <div className="p-4 border-t border-[#222] space-y-2 flex-shrink-0">
+          <button onClick={renderSingle} disabled={rendering || !selectedTemplate}
+            className="w-full bg-[#FF4500] hover:bg-[#e63e00] disabled:opacity-50 text-white font-bold py-3 rounded-lg text-sm transition-colors">
+            {rendering ? 'Rendert...' : 'Creative rendern'}
+          </button>
+          <button onClick={renderAllFormats} disabled={rendering || !selectedTemplate}
+            className="w-full bg-transparent border border-[#FF4500] text-[#FF4500] font-semibold py-2.5 rounded-lg text-xs hover:bg-[#FF4500]/10 transition-colors">
+            Alle Formate rendern (4x)
+          </button>
         </div>
-
-        {/* Price */}
-        <div>
-          <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Preis</label>
-          <input value={price} onChange={e => setPrice(e.target.value)}
-            className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2.5 text-[#FF4500] text-sm font-bold outline-none" />
-        </div>
-        <div>
-          <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Streichpreis</label>
-          <input value={originalPrice} onChange={e => setOriginalPrice(e.target.value)}
-            className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2.5 text-[#888] text-sm outline-none" />
-        </div>
-
-        {/* Person */}
-        <div>
-          <label className="text-[#888] text-xs uppercase tracking-wider mb-1.5 block">Person</label>
-          <AssetGrid assets={personAssets} selected={selectedPerson} onSelect={setSelectedPerson} size="sm" />
-        </div>
-
-        {/* Background */}
-        <div>
-          <label className="text-[#888] text-xs uppercase tracking-wider mb-1.5 block">Hintergrund</label>
-          <AssetGrid assets={bgAssets} selected={selectedBg} onSelect={setSelectedBg} size="sm" />
-        </div>
-
-        {/* Style Adjustments */}
-        {Object.keys(cssVars).length > 0 && (
-          <div>
-            <button onClick={() => setShowStylePanel(!showStylePanel)}
-              className="text-[#888] text-xs uppercase tracking-wider mb-1.5 flex items-center gap-1 hover:text-white">
-              Stil anpassen {showStylePanel ? '▾' : '▸'}
-            </button>
-            {showStylePanel && (
-              <CssVarSlider variables={cssVars} onChange={handleCssVarChange} />
-            )}
-          </div>
-        )}
-
-        {/* Render buttons */}
-        <button onClick={renderSingle} disabled={rendering || !selectedTemplate}
-          className="w-full bg-[#FF4500] hover:bg-[#e63e00] disabled:opacity-50 text-white font-bold py-3 rounded-lg text-sm transition-colors">
-          {rendering ? 'Rendert...' : 'Creative rendern →'}
-        </button>
-        <button onClick={renderAllFormats} disabled={rendering || !selectedTemplate}
-          className="w-full bg-transparent border border-[#FF4500] text-[#FF4500] font-semibold py-2.5 rounded-lg text-xs hover:bg-[#FF4500]/10 transition-colors">
-          Alle Formate rendern (4×)
-        </button>
       </div>
 
       {/* Center: Preview */}
@@ -289,7 +338,7 @@ export default function CreativesPage() {
             fieldValues={buildFieldValues()}
           />
         ) : (
-          <div className="text-[#444] text-sm">Wähle ein Template um die Vorschau zu sehen</div>
+          <div className="text-[#444] text-sm">Waehle ein Template um die Vorschau zu sehen</div>
         )}
       </div>
 

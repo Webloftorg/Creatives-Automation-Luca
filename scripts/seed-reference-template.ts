@@ -15,8 +15,12 @@ const template = {
     '--price-size': '96px',
     '--person-scale': '0.85',
     '--person-position-y': '5%',
+    '--person-position-x': '0%',
     '--location-size': '28px',
     '--strikethrough-size': '28px',
+    '--headline-rotation': '0deg',
+    '--price-rotation': '0deg',
+    '--content-padding': '40px',
   },
   dynamicFields: [
     { key: 'headline', label: 'Headline', type: 'text', required: true },
