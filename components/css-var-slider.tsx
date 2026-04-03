@@ -22,6 +22,13 @@ const SLIDER_CONFIG: Record<string, { min: number; max: number; step: number; un
   '--headline-rotation': { min: -15, max: 15, step: 1, unit: 'deg', label: 'Headline Winkel', group: 'Layout' },
   '--price-rotation':    { min: -10, max: 10, step: 1, unit: 'deg', label: 'Preis Winkel', group: 'Layout' },
   '--content-padding':   { min: 16, max: 80, step: 4, unit: 'px', label: 'Innenabstand', group: 'Layout' },
+  // Positionen (per Drag gesetzt, aber auch per Slider anpassbar)
+  '--location-x':    { min: 0, max: 100, step: 1, unit: '%', label: 'Standort X', group: 'Positionen' },
+  '--location-y':    { min: 0, max: 100, step: 1, unit: '%', label: 'Standort Y', group: 'Positionen' },
+  '--headline-x':    { min: 0, max: 100, step: 1, unit: '%', label: 'Headline X', group: 'Positionen' },
+  '--headline-y':    { min: 0, max: 100, step: 1, unit: '%', label: 'Headline Y', group: 'Positionen' },
+  '--price-block-x': { min: 0, max: 100, step: 1, unit: '%', label: 'Preis-Block X', group: 'Positionen' },
+  '--price-block-y': { min: 0, max: 100, step: 1, unit: '%', label: 'Preis-Block Y', group: 'Positionen' },
 };
 
 function parseNumericValue(val: string): number {

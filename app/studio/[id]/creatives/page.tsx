@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { FormatSelector } from '@/components/format-selector';
 import { HeadlineSuggestions } from '@/components/headline-suggestions';
@@ -98,6 +98,16 @@ export default function CreativesPage() {
   const handleCssVarChange = (key: string, value: string) => {
     setCssVars(prev => ({ ...prev, [key]: value }));
   };
+
+  const handleDragEnd = useCallback((elementId: string, xPercent: number, yPercent: number) => {
+    const xKey = `--${elementId}-x`;
+    const yKey = `--${elementId}-y`;
+    setCssVars(prev => ({
+      ...prev,
+      [xKey]: `${Math.round(xPercent)}%`,
+      [yKey]: `${Math.round(yPercent)}%`,
+    }));
+  }, []);
 
   const buildFieldValues = (): Record<string, string> => ({
     headline,
@@ -336,6 +346,8 @@ export default function CreativesPage() {
             width={dims.width}
             height={dims.height}
             fieldValues={buildFieldValues()}
+            editable
+            onDragEnd={handleDragEnd}
           />
         ) : (
           <div className="text-[#444] text-sm">Waehle ein Template um die Vorschau zu sehen</div>

@@ -40,8 +40,18 @@ GOLDENE REGEL: Jedes Template MUSS auf dem folgenden REFERENZ-TEMPLATE basieren.
       --price-size: 96px;
       --person-scale: 0.85;
       --person-position-y: 5%;
+      --person-position-x: 0%;
       --location-size: 28px;
       --strikethrough-size: 28px;
+      --headline-rotation: 0deg;
+      --price-rotation: 0deg;
+      --content-padding: 40px;
+      --location-x: 50%;
+      --location-y: 4%;
+      --headline-x: 50%;
+      --headline-y: 62%;
+      --price-block-x: 50%;
+      --price-block-y: 78%;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     .creative-container {
@@ -63,19 +73,33 @@ GOLDENE REGEL: Jedes Template MUSS auf dem folgenden REFERENZ-TEMPLATE basieren.
     }
     .person {
       position: absolute; z-index: 2;
-      bottom: var(--person-position-y); left: 50%;
+      bottom: var(--person-position-y); left: calc(50% + var(--person-position-x));
       transform: translateX(-50%) scale(var(--person-scale));
       height: 85%; width: auto; object-fit: contain;
       filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
     }
-    .content {
-      position: absolute; z-index: 3; inset: 0;
-      display: flex; flex-direction: column;
-      justify-content: space-between; padding: 40px;
+    .location {
+      position: absolute; z-index: 3;
+      left: var(--location-x); top: var(--location-y);
+      transform: translateX(-50%);
+      font-size: var(--location-size); font-weight: 700; color: white; text-align: center;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.8); text-transform: uppercase; letter-spacing: 2px;
+      white-space: nowrap;
     }
-    .location { font-size: var(--location-size); font-weight: 700; color: white; text-align: center; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); text-transform: uppercase; letter-spacing: 2px; }
-    .headline { font-size: var(--headline-size); font-weight: 900; color: white; text-transform: uppercase; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); line-height: 1.05; margin-bottom: 16px; }
-    .price-block { background: rgba(0,0,0,0.75); display: inline-block; padding: 12px 40px; border-radius: 8px; }
+    .headline {
+      position: absolute; z-index: 3;
+      left: var(--headline-x); top: var(--headline-y);
+      transform: translateX(-50%) rotate(var(--headline-rotation));
+      font-size: var(--headline-size); font-weight: 900; color: white; text-transform: uppercase;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.8); line-height: 1.05; text-align: center;
+      white-space: nowrap;
+    }
+    .price-block {
+      position: absolute; z-index: 3;
+      left: var(--price-block-x); top: var(--price-block-y);
+      transform: translateX(-50%) rotate(var(--price-rotation));
+      background: rgba(0,0,0,0.75); padding: 12px 40px; border-radius: 8px; text-align: center;
+    }
     .price { font-size: var(--price-size); font-weight: 900; color: var(--accent-color); text-shadow: 0 0 30px rgba(255,69,0,0.3); line-height: 1.1; }
     .original-price { font-size: var(--strikethrough-size); font-weight: 700; color: rgba(255,255,255,0.6); text-decoration: line-through; margin-top: 4px; }
   </style>
@@ -85,15 +109,11 @@ GOLDENE REGEL: Jedes Template MUSS auf dem folgenden REFERENZ-TEMPLATE basieren.
     <div class="background"></div>
     <div class="overlay"></div>
     <img class="person" src="{{personImage}}" alt="">
-    <div class="content">
-      <div class="location">{{location}}</div>
-      <div class="bottom-block" style="text-align:center">
-        <h1 class="headline">{{headline}}</h1>
-        <div class="price-block">
-          <div class="price">{{price}}</div>
-          <div class="original-price">Statt {{originalPrice}}</div>
-        </div>
-      </div>
+    <div class="location" data-draggable="location">{{location}}</div>
+    <h1 class="headline" data-draggable="headline">{{headline}}</h1>
+    <div class="price-block" data-draggable="price-block">
+      <div class="price">{{price}}</div>
+      <div class="original-price">Statt {{originalPrice}}</div>
     </div>
   </div>
 </body>

@@ -21,6 +21,12 @@ const template = {
     '--headline-rotation': '0deg',
     '--price-rotation': '0deg',
     '--content-padding': '40px',
+    '--location-x': '50%',
+    '--location-y': '4%',
+    '--headline-x': '50%',
+    '--headline-y': '62%',
+    '--price-block-x': '50%',
+    '--price-block-y': '78%',
   },
   dynamicFields: [
     { key: 'headline', label: 'Headline', type: 'text', required: true },
