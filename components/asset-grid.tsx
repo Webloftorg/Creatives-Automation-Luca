@@ -14,7 +14,8 @@ export function AssetGrid({ assets, selected, onSelect, onDelete, size = 'md' }:
   return (
     <div className="flex gap-2 flex-wrap">
       {assets.map((path, i) => {
-        const url = path.includes('data/assets/')
+        // On Windows, path.join() uses backslashes, so check both separators
+        const url = (path.includes('data/assets/') || path.includes('data\\assets\\'))
           ? `/api/assets/serve?path=${encodeURIComponent(path)}`
           : path;
 

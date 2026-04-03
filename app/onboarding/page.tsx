@@ -138,11 +138,16 @@ export default function OnboardingPage() {
               <div>
                 <label className="text-[#aaa] text-xs uppercase tracking-wider mb-2 block">Hintergrundbilder (Gym-Fotos)</label>
                 <div className="flex gap-2 flex-wrap mb-2">
-                  {backgroundPaths.map((p, i) => (
-                    <div key={i} className="w-20 h-20 bg-[#1a1a1a] border border-[#333] rounded-lg overflow-hidden">
-                      <div className="w-full h-full bg-[#2a2a2a]" />
-                    </div>
-                  ))}
+                  {backgroundPaths.map((p, i) => {
+                    const url = (p.includes('data/assets/') || p.includes('data\\assets\\'))
+                      ? `/api/assets/serve?path=${encodeURIComponent(p)}`
+                      : p;
+                    return (
+                      <div key={i} className="w-20 h-20 bg-[#1a1a1a] border border-[#333] rounded-lg overflow-hidden">
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    );
+                  })}
                 </div>
                 <FileUpload onFiles={files => uploadFiles(files, 'background')} label="+ Hochladen" />
                 <div className="mt-2">
@@ -153,9 +158,16 @@ export default function OnboardingPage() {
                 <label className="text-[#aaa] text-xs uppercase tracking-wider mb-1 block">Personen-Bilder</label>
                 <p className="text-[#555] text-xs mb-2">Transparenter Hintergrund empfohlen</p>
                 <div className="flex gap-2 flex-wrap mb-2">
-                  {personPaths.map((p, i) => (
-                    <div key={i} className="w-20 h-20 bg-[#1a1a1a] border border-[#333] rounded-lg" />
-                  ))}
+                  {personPaths.map((p, i) => {
+                    const url = (p.includes('data/assets/') || p.includes('data\\assets\\'))
+                      ? `/api/assets/serve?path=${encodeURIComponent(p)}`
+                      : p;
+                    return (
+                      <div key={i} className="w-20 h-20 bg-[#1a1a1a] border border-[#333] rounded-lg overflow-hidden">
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    );
+                  })}
                 </div>
                 <FileUpload onFiles={files => uploadFiles(files, 'person')} accept="image/png" label="+ Hochladen (PNG)" />
                 <div className="mt-2">

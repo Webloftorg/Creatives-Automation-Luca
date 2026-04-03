@@ -21,6 +21,14 @@ export function LivePreview({ html, width, height, fieldValues }: LivePreviewPro
       rendered = rendered.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
     }
 
+    // Inject <base> so relative URLs (like /api/assets/serve) resolve against localhost
+    const baseTag = `<base href="${window.location.origin}/">`;
+    if (rendered.includes('<head>')) {
+      rendered = rendered.replace('<head>', `<head>${baseTag}`);
+    } else {
+      rendered = `${baseTag}${rendered}`;
+    }
+
     iframeRef.current.srcdoc = rendered;
   }, [html, width, height, fieldValues]);
 
@@ -50,7 +58,7 @@ export function LivePreview({ html, width, height, fieldValues }: LivePreviewPro
             transformOrigin: 'top left',
             border: 'none',
           }}
-          sandbox="allow-same-origin"
+          sandbox="allow-same-origin allow-scripts"
           title="Creative Preview"
         />
       </div>
