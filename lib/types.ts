@@ -54,6 +54,29 @@ export interface CreativeOutput {
   error?: string;
 }
 
+export interface CampaignVariant {
+  id: string;
+  templateHtml: string;
+  fieldValues: Record<string, string>;
+  approved: boolean;
+  outputs: CreativeOutput[];
+}
+
+export interface Campaign {
+  id: string;
+  studioId: string;
+  name: string;
+  baseTemplateId?: string;
+  designVariantCount: number;
+  headlineVariantCount: number;
+  formats: CreativeFormat[];
+  defaultValues: Record<string, string>;
+  variants: CampaignVariant[];
+  status: 'draft' | 'reviewing' | 'rendering' | 'done';
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type CreativeFormat =
   | 'instagram-post'
   | 'instagram-story'
@@ -86,6 +109,11 @@ export interface StorageAdapter {
 
   saveCreative(creative: Creative): Promise<void>;
   listCreatives(studioId: string): Promise<Creative[]>;
+
+  saveCampaign(campaign: Campaign): Promise<void>;
+  getCampaign(id: string): Promise<Campaign | null>;
+  listCampaigns(studioId: string): Promise<Campaign[]>;
+  deleteCampaign(id: string): Promise<void>;
 
   uploadAsset(file: Buffer, filename: string, studioId: string, type: AssetType): Promise<string>;
   listAssets(studioId: string, type?: AssetType): Promise<string[]>;

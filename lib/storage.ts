@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import type { Studio, SavedTemplate, Creative, StorageAdapter, PromptType, AssetType } from './types';
+import type { Studio, SavedTemplate, Creative, Campaign, StorageAdapter, PromptType, AssetType } from './types';
 
 export class FilesystemStorage implements StorageAdapter {
   private basePath: string;
@@ -10,7 +10,7 @@ export class FilesystemStorage implements StorageAdapter {
   }
 
   async init(): Promise<void> {
-    const dirs = ['studios', 'templates', 'creatives', 'prompts', 'assets'];
+    const dirs = ['studios', 'templates', 'creatives', 'prompts', 'assets', 'campaigns'];
     for (const dir of dirs) {
       await fs.mkdir(path.join(this.basePath, dir), { recursive: true });
     }
@@ -62,6 +62,27 @@ export class FilesystemStorage implements StorageAdapter {
     const all = await this.listJsonFiles('creatives');
     const creatives = await Promise.all(all.map(f => this.readJson<Creative>(f)));
     return creatives.filter(c => c.studioId === studioId);
+  }
+
+  async saveCampaign(campaign: Campaign): Promise<void> {
+    await fs.writeFile(path.join(this.basePath, 'campaigns', `${campaign.id}.json`), JSON.stringify(campaign, null, 2));
+  }
+
+  async getCampaign(id: string): Promise<Campaign | null> {
+    try {
+      const data = await fs.readFile(path.join(this.basePath, 'campaigns', `${id}.json`), 'utf-8');
+      return JSON.parse(data);
+    } catch { return null; }
+  }
+
+  async listCampaigns(studioId: string): Promise<Campaign[]> {
+    const all = await this.listJsonFiles('campaigns');
+    const campaigns = await Promise.all(all.map(f => this.readJson<Campaign>(f)));
+    return campaigns.filter(c => c.studioId === studioId);
+  }
+
+  async deleteCampaign(id: string): Promise<void> {
+    try { await fs.unlink(path.join(this.basePath, 'campaigns', `${id}.json`)); } catch {}
   }
 
   async uploadAsset(file: Buffer, filename: string, studioId: string, type: AssetType): Promise<string> {
