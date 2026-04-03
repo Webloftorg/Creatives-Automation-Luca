@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
-  { icon: '\u270F\uFE0F', label: 'Creatives', path: 'creatives' },
-  { icon: '\uD83C\uDFA8', label: 'Templates', path: 'templates' },
-  { icon: '\uD83D\uDCF7', label: 'Assets', path: 'assets' },
-  { icon: '\u2699\uFE0F', label: 'Einstellungen', path: 'settings' },
+  { icon: '✏️', label: 'Creatives', path: 'creatives' },
+  { icon: '📦', label: 'Kampagnen', path: 'campaigns' },
+  { icon: '🎨', label: 'Templates', path: 'templates' },
+  { icon: '📷', label: 'Assets', path: 'assets' },
+  { icon: '⚙️', label: 'Einstellungen', path: 'settings' },
 ];
 
 export function Sidebar({ studioId, studioName }: { studioId: string; studioName?: string }) {
