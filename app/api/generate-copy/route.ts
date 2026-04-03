@@ -32,8 +32,12 @@ export async function POST(req: NextRequest) {
       messages: [{ role: 'user', content: userMessage }],
     });
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : '';
-    const variants = JSON.parse(text);
+    let text = message.content[0].type === 'text' ? message.content[0].text : '';
+    // Strip markdown code fences if Claude wrapped the JSON
+    text = text.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+    // Try to extract JSON array if there's surrounding text
+    const match = text.match(/\[[\s\S]*\]/);
+    const variants = JSON.parse(match ? match[0] : text);
     return NextResponse.json({ variants });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Copy generation failed';

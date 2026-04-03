@@ -34,7 +34,10 @@ async function generateDesignHtml(
     messages: [{ role: 'user', content: userMessage }],
   });
 
-  return message.content[0].type === 'text' ? message.content[0].text : '';
+  let html = message.content[0].type === 'text' ? message.content[0].text : '';
+  // Strip markdown code fences if Claude wrapped the HTML
+  html = html.replace(/^```(?:html)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+  return html;
 }
 
 async function generateHeadlines(
@@ -58,11 +61,21 @@ async function generateHeadlines(
     messages: [{ role: 'user', content: userMessage }],
   });
 
-  const text = message.content[0].type === 'text' ? message.content[0].text : '[]';
+  let text = message.content[0].type === 'text' ? message.content[0].text : '[]';
+  // Strip markdown code fences if present
+  text = text.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
   try {
     const parsed = JSON.parse(text);
     return Array.isArray(parsed) ? parsed.slice(0, count) : [];
   } catch {
+    // Fallback: try to extract JSON array from the response
+    const match = text.match(/\[[\s\S]*\]/);
+    if (match) {
+      try {
+        const parsed = JSON.parse(match[0]);
+        return Array.isArray(parsed) ? parsed.slice(0, count) : [];
+      } catch { /* fall through */ }
+    }
     return [];
   }
 }

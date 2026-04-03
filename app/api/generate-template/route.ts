@@ -57,7 +57,9 @@ export async function POST(req: NextRequest) {
       messages: [{ role: 'user', content: parts.join('\n') }],
     });
 
-    const html = message.content[0].type === 'text' ? message.content[0].text : '';
+    let html = message.content[0].type === 'text' ? message.content[0].text : '';
+    // Strip markdown code fences if Claude wrapped the HTML
+    html = html.replace(/^```(?:html)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
     const placeholders = extractPlaceholders(html);
     const cssVariables = extractCssVariables(html);
     const dynamicFields = placeholdersToDynamicFields(placeholders);

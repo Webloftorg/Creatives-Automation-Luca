@@ -1,5 +1,6 @@
 'use client';
 
+import { LivePreview } from '@/components/live-preview';
 import type { SavedTemplate } from '@/lib/types';
 
 interface TemplateCardProps {
@@ -13,11 +14,14 @@ interface TemplateCardProps {
 export function TemplateCard({ template, onUse, onEdit, onDuplicate, onDelete }: TemplateCardProps) {
   return (
     <div className="bg-[#111] border border-[#333] rounded-xl overflow-hidden">
-      <div className="h-36 bg-[#1a1a1a] flex items-center justify-center text-[#444] text-sm">
-        {template.thumbnail ? (
-          <img src={template.thumbnail} alt="" className="w-full h-full object-cover" />
+      <div className="h-36 bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
+        {template.htmlContent ? (
+          <LivePreview html={template.htmlContent} width={1080} height={1080} fieldValues={{
+            headline: 'HEADLINE', price: '39,90\u20AC', originalPrice: '89,90\u20AC',
+            location: 'Standort', primaryColor: '#FF4500', accentColor: '#FF6B00',
+          }} />
         ) : (
-          <span>Vorschau</span>
+          <span className="text-[#444] text-sm">Vorschau</span>
         )}
       </div>
       <div className="p-3">

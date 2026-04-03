@@ -7,7 +7,8 @@ import { HeadlineSuggestions } from '@/components/headline-suggestions';
 import { AssetGrid } from '@/components/asset-grid';
 import { LivePreview } from '@/components/live-preview';
 import { BatchPanel } from '@/components/batch-panel';
-import { replacePlaceholders } from '@/lib/template-utils';
+import { CssVarSlider } from '@/components/css-var-slider';
+import { replacePlaceholders, extractCssVariables } from '@/lib/template-utils';
 import { FORMAT_DIMENSIONS, ALL_FORMATS } from '@/lib/formats';
 import type { Studio, SavedTemplate, CreativeFormat, CreativeOutput } from '@/lib/types';
 
@@ -27,6 +28,10 @@ export default function CreativesPage() {
   const [originalPrice, setOriginalPrice] = useState('89,90€');
   const [selectedPerson, setSelectedPerson] = useState('');
   const [selectedBg, setSelectedBg] = useState('');
+
+  // Style overrides
+  const [cssVars, setCssVars] = useState<Record<string, string>>({});
+  const [showStylePanel, setShowStylePanel] = useState(false);
 
   // Render state
   const [outputs, setOutputs] = useState<CreativeOutput[]>([]);
@@ -50,17 +55,37 @@ export default function CreativesPage() {
       const merged = [...studioTemplates, ...globals];
       setTemplates(merged);
 
+      let initial: SavedTemplate | null = null;
       if (preselectedTemplateId) {
-        const t = merged.find((t: SavedTemplate) => t.id === preselectedTemplateId);
-        if (t) setSelectedTemplate(t);
+        initial = merged.find((t: SavedTemplate) => t.id === preselectedTemplateId) || null;
       } else if (merged.length > 0) {
-        setSelectedTemplate(merged[0]);
+        initial = merged[0];
+      }
+      if (initial) {
+        setSelectedTemplate(initial);
+        setCssVars(extractCssVariables(initial.htmlContent));
       }
 
       setPersonAssets(persons);
       setBgAssets(bgs);
     });
   }, [studioId, preselectedTemplateId]);
+
+  // Apply CSS var overrides to template HTML
+  const getStyledHtml = (html: string): string => {
+    let styled = html;
+    for (const [key, value] of Object.entries(cssVars)) {
+      styled = styled.replace(
+        new RegExp(`(${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:\\s*)([^;]+)`),
+        `$1${value}`,
+      );
+    }
+    return styled;
+  };
+
+  const handleCssVarChange = (key: string, value: string) => {
+    setCssVars(prev => ({ ...prev, [key]: value }));
+  };
 
   const buildFieldValues = (): Record<string, string> => ({
     headline,
@@ -81,7 +106,7 @@ export default function CreativesPage() {
     setRendering(true);
 
     const values = { ...buildFieldValues(), width: String(dims.width), height: String(dims.height) };
-    const html = replacePlaceholders(selectedTemplate.htmlContent, values);
+    const html = replacePlaceholders(getStyledHtml(selectedTemplate.htmlContent), values);
 
     const newOutput: CreativeOutput = { format, status: 'rendering' };
     setOutputs(prev => [...prev, newOutput]);
@@ -120,7 +145,7 @@ export default function CreativesPage() {
     await Promise.all(ALL_FORMATS.map(async (fmt, idx) => {
       const d = FORMAT_DIMENSIONS[fmt];
       const values = { ...buildFieldValues(), width: String(d.width), height: String(d.height) };
-      const html = replacePlaceholders(selectedTemplate.htmlContent, values);
+      const html = replacePlaceholders(getStyledHtml(selectedTemplate.htmlContent), values);
 
       try {
         const res = await fetch('/api/render', {
@@ -178,7 +203,11 @@ export default function CreativesPage() {
           <label className="text-[#888] text-xs uppercase tracking-wider">Template</label>
           <select
             value={selectedTemplate?.id || ''}
-            onChange={e => setSelectedTemplate(templates.find(t => t.id === e.target.value) || null)}
+            onChange={e => {
+              const t = templates.find(t => t.id === e.target.value) || null;
+              setSelectedTemplate(t);
+              if (t) setCssVars(extractCssVariables(t.htmlContent));
+            }}
             className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2.5 text-white text-sm mt-1 outline-none"
           >
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -226,6 +255,19 @@ export default function CreativesPage() {
           <AssetGrid assets={bgAssets} selected={selectedBg} onSelect={setSelectedBg} size="sm" />
         </div>
 
+        {/* Style Adjustments */}
+        {Object.keys(cssVars).length > 0 && (
+          <div>
+            <button onClick={() => setShowStylePanel(!showStylePanel)}
+              className="text-[#888] text-xs uppercase tracking-wider mb-1.5 flex items-center gap-1 hover:text-white">
+              Stil anpassen {showStylePanel ? '▾' : '▸'}
+            </button>
+            {showStylePanel && (
+              <CssVarSlider variables={cssVars} onChange={handleCssVarChange} />
+            )}
+          </div>
+        )}
+
         {/* Render buttons */}
         <button onClick={renderSingle} disabled={rendering || !selectedTemplate}
           className="w-full bg-[#FF4500] hover:bg-[#e63e00] disabled:opacity-50 text-white font-bold py-3 rounded-lg text-sm transition-colors">
@@ -241,7 +283,7 @@ export default function CreativesPage() {
       <div className="flex-1 flex items-center justify-center bg-[#0a0a0a] p-6">
         {selectedTemplate ? (
           <LivePreview
-            html={selectedTemplate.htmlContent}
+            html={getStyledHtml(selectedTemplate.htmlContent)}
             width={dims.width}
             height={dims.height}
             fieldValues={buildFieldValues()}
