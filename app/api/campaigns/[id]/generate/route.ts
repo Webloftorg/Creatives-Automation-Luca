@@ -142,7 +142,17 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       )
     );
 
-    // 3. Combine: designs × headlines = variants
+    // 3. Build complete field values with studio context FIRST
+    const completeValues: Record<string, string> = {
+      ...campaign.defaultValues,
+    };
+    if (studio) {
+      completeValues.location = completeValues.location || studio.location;
+      completeValues.primaryColor = completeValues.primaryColor || studio.primaryColor;
+      completeValues.accentColor = completeValues.accentColor || studio.accentColor;
+    }
+
+    // 4. Combine: designs × headlines = variants
     const variants: CampaignVariant[] = [];
     for (let d = 0; d < designHtmls.length; d++) {
       const headlines = headlineResults[d] || [];
@@ -151,20 +161,13 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
           id: uuidv4(),
           templateHtml: designHtmls[d],
           fieldValues: {
-            ...campaign.defaultValues,
+            ...completeValues,
             headline: headlines[h].headline,
           },
           approved: true,
           outputs: [],
         });
       }
-    }
-
-    // 4. Inject studio context into defaultValues
-    if (studio) {
-      campaign.defaultValues.location = campaign.defaultValues.location || studio.location;
-      campaign.defaultValues.primaryColor = campaign.defaultValues.primaryColor || studio.primaryColor;
-      campaign.defaultValues.accentColor = campaign.defaultValues.accentColor || studio.accentColor;
     }
 
     // 5. Update campaign
