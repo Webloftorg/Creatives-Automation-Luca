@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: {{primaryColor}};
+      --accent-color: {{accentColor}};
+      --bg-blur: 0px;
+      --bg-brightness: 0.92;
+      --headline-size: 96px;
+      --price-size: 140px;
+      --person-scale: 0.85;
+      --person-position-y: 5%;
+      --person-position-x: 22%;
+      --location-size: 35px;
+      --strikethrough-size: 35px;
+      --headline-rotation: 0deg;
+      --price-rotation: 0deg;
+      --content-padding: 40px;
+      --location-x: 28%;
+      --location-y: 88%;
+      --headline-x: 30%;
+      --headline-y: 52%;
+      --price-block-x: 32%;
+      --price-block-y: 70%;
+      --watermark-size: 180px;
+      --watermark-opacity: 0.03;
+      --watermark-rotation: -15deg;
+      --price-unit-size: 32px;
+      --footer-height: 0px;
+      --overlay-opacity: 1;
+      --overlay-color: 245, 245, 245;
+      --headline-wrap: normal;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    .creative-container {
+      width: {{width}}px;
+      height: {{height}}px;
+      position: relative;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: #f5f5f5;
+    }
+
+    .background {
+      position: absolute;
+      inset: 0;
+      background-image: url('{{backgroundImage}}');
+      background-size: cover;
+      background-position: center;
+      filter: blur(var(--bg-blur)) brightness(var(--bg-brightness));
+      transform: scale(1.15);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(var(--overlay-color),0.6) 0%,
+        rgba(var(--overlay-color),0.3) 50%,
+        rgba(var(--overlay-color),0.5) 100%
+      );
+      z-index: 1;
+      opacity: var(--overlay-opacity);
+    }
+
+    /* Watermark background text */
+    .watermark {
+      position: absolute;
+      inset: -20%;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: center;
+      justify-content: center;
+      gap: 20px;
+      transform: rotate(var(--watermark-rotation));
+      pointer-events: none;
+    }
+
+    .watermark span {
+      font-size: var(--watermark-size);
+      font-weight: 900;
+      color: #999;
+      opacity: var(--watermark-opacity);
+      text-transform: uppercase;
+      white-space: nowrap;
+      letter-spacing: 8px;
+      line-height: 1.2;
+    }
+
+    .person {
+      position: absolute;
+      z-index: 2;
+      bottom: var(--person-position-y);
+      left: calc(50% + var(--person-position-x));
+      transform: translateX(-50%) scale(var(--person-scale));
+      height: 88%;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 20px rgba(0,0,0,0.15));
+    }
+
+    .location {
+      position: absolute;
+      z-index: 3;
+      left: var(--location-x);
+      top: var(--location-y);
+      transform: translateX(-50%);
+      font-size: var(--location-size);
+      font-weight: 700;
+      color: #333;
+      text-align: center;
+      text-shadow: none;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      white-space: nowrap;
+    }
+
+    .headline {
+      position: absolute;
+      z-index: 3;
+      left: var(--headline-x);
+      top: var(--headline-y);
+      transform: translateX(-50%) rotate(var(--headline-rotation));
+      font-size: var(--headline-size);
+      font-weight: 900;
+      color: #111;
+      text-transform: uppercase;
+      text-shadow: none;
+      line-height: 1.0;
+      text-align: center;
+      max-width: 90%; word-break: break-word; white-space: var(--headline-wrap);
+    }
+
+    .price-block {
+      position: absolute;
+      z-index: 3;
+      left: var(--price-block-x);
+      top: var(--price-block-y);
+      transform: translateX(-50%) rotate(var(--price-rotation));
+      text-align: center;
+      padding: 0;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .price {
+      font-size: var(--price-size);
+      font-weight: 900;
+      color: var(--accent-color);
+      text-shadow:
+        0 0 10px var(--accent-color),
+        0 0 30px var(--accent-color),
+        0 0 60px var(--accent-color),
+        0 0 100px var(--accent-color),
+        0 2px 4px rgba(0,0,0,0.8);
+      line-height: 1.0;
+      letter-spacing: -2px;
+      filter: brightness(1.3);
+    }
+
+    .price-unit {
+      font-size: var(--price-unit-size);
+      font-weight: 700;
+      color: var(--accent-color);
+      text-shadow:
+        0 0 10px var(--accent-color),
+        0 0 30px var(--accent-color),
+        0 2px 4px rgba(0,0,0,0.8);
+      filter: brightness(1.3);
+    }
+
+    .original-price {
+      display: inline-block;
+      font-size: var(--strikethrough-size);
+      font-weight: 700;
+      color: rgba(0,0,0,0.5);
+      text-decoration: line-through;
+      text-decoration-color: var(--accent-color);
+      text-decoration-thickness: 3px;
+      margin-top: 8px;
+      text-shadow: none;
+    }
+
+    /* Footer bar */
+    .footer-bar {
+      position: absolute;
+      z-index: 4;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--footer-height);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      padding: 0 30px;
+    }
+
+    .footer-bar span {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .footer-separator {
+      width: 6px;
+      height: 6px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="creative-container">
+    <div class="background"></div>
+    <div class="overlay"></div>
+    <div class="watermark">
+      <span data-field="headline">{{headline}}</span>
+      <span data-field="headline">{{headline}}</span>
+      <span data-field="headline">{{headline}}</span>
+      <span data-field="headline">{{headline}}</span>
+      <span data-field="headline">{{headline}}</span>
+      <span data-field="headline">{{headline}}</span>
+      <span data-field="headline">{{headline}}</span>
+      <span data-field="headline">{{headline}}</span>
+    </div>
+    <img class="person" src="{{personImage}}" alt="" data-draggable="person">
+    <div class="location" data-draggable="location" data-field="location">{{location}}</div>
+    <h1 class="headline" data-draggable="headline" data-field="headline">{{headline}}</h1>
+    <div class="price-block" data-draggable="price-block">
+      <div class="price-row">
+        <div class="price" data-field="price">{{price}}</div>
+        <div class="price-unit">/mtl.</div>
+      </div>
+      <div class="original-price" data-field="originalPrice">Statt {{originalPrice}}</div>
+    </div>
+    <div class="footer-bar">
+      <span data-field="location">{{location}}</span>
+      <div class="footer-separator"></div>
+      <span>Jetzt starten</span>
+      <div class="footer-separator"></div>
+      <span data-field="location">{{location}}</span>
+    </div>
+  </div>
+</body>
+</html>

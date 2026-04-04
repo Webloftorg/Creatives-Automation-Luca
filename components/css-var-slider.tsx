@@ -2,78 +2,112 @@
 
 interface CssVarSliderProps {
   variables: Record<string, string>;
+  selectedSection: string | null;
   onChange: (key: string, value: string) => void;
 }
 
-const SLIDER_CONFIG: Record<string, { min: number; max: number; step: number; unit: string; label: string; group: string }> = {
+const SLIDER_CONFIG: Record<string, { min: number; max: number; step: number; unit: string; label: string; group: string; section: string }> = {
   // Hintergrund
-  '--bg-blur':        { min: 0, max: 20, step: 1, unit: 'px', label: 'Hintergrund Blur', group: 'Hintergrund' },
-  '--bg-brightness':  { min: 0, max: 1, step: 0.05, unit: '', label: 'Hintergrund Helligkeit', group: 'Hintergrund' },
+  '--bg-blur':        { min: 0, max: 20, step: 1, unit: 'px', label: 'Hintergrund Blur', group: 'Hintergrund', section: 'background' },
+  '--bg-brightness':  { min: 0.1, max: 1, step: 0.05, unit: '', label: 'Hintergrund Helligkeit', group: 'Hintergrund', section: 'background' },
+  // Filter
+  '--overlay-opacity': { min: 0, max: 1, step: 0.05, unit: '', label: 'Filterstaerke', group: 'Filter', section: 'background' },
   // Typografie
-  '--headline-size':  { min: 24, max: 140, step: 2, unit: 'px', label: 'Headline Gr\u00f6\u00dfe', group: 'Typografie' },
-  '--price-size':     { min: 32, max: 180, step: 2, unit: 'px', label: 'Preis Gr\u00f6\u00dfe', group: 'Typografie' },
-  '--location-size':  { min: 14, max: 56, step: 1, unit: 'px', label: 'Standort Gr\u00f6\u00dfe', group: 'Typografie' },
-  '--strikethrough-size': { min: 14, max: 56, step: 1, unit: 'px', label: 'Streichpreis Gr\u00f6\u00dfe', group: 'Typografie' },
+  '--headline-size':  { min: 24, max: 140, step: 2, unit: 'px', label: 'Headline Größe', group: 'Typografie', section: 'headline' },
+  '--price-size':     { min: 32, max: 180, step: 2, unit: 'px', label: 'Preis Größe', group: 'Typografie', section: 'price-block' },
+  '--location-size':  { min: 14, max: 56, step: 1, unit: 'px', label: 'Standort Größe', group: 'Typografie', section: 'location' },
+  '--strikethrough-size': { min: 14, max: 56, step: 1, unit: 'px', label: 'Streichpreis Größe', group: 'Typografie', section: 'price-block' },
   // Person
-  '--person-scale':      { min: 0.3, max: 1.5, step: 0.05, unit: '', label: 'Person Gr\u00f6\u00dfe', group: 'Person' },
-  '--person-position-y': { min: -20, max: 30, step: 1, unit: '%', label: 'Person Position Y', group: 'Person' },
-  '--person-position-x': { min: -30, max: 30, step: 1, unit: '%', label: 'Person Position X', group: 'Person' },
+  '--person-scale':      { min: 0.3, max: 1.5, step: 0.05, unit: '', label: 'Person Skalierung', group: 'Person', section: 'person' },
   // Layout
-  '--headline-rotation': { min: -15, max: 15, step: 1, unit: 'deg', label: 'Headline Winkel', group: 'Layout' },
-  '--price-rotation':    { min: -10, max: 10, step: 1, unit: 'deg', label: 'Preis Winkel', group: 'Layout' },
-  '--content-padding':   { min: 16, max: 80, step: 4, unit: 'px', label: 'Innenabstand', group: 'Layout' },
-  // Positionen (per Drag gesetzt, aber auch per Slider anpassbar)
-  '--location-x':    { min: 0, max: 100, step: 1, unit: '%', label: 'Standort X', group: 'Positionen' },
-  '--location-y':    { min: 0, max: 100, step: 1, unit: '%', label: 'Standort Y', group: 'Positionen' },
-  '--headline-x':    { min: 0, max: 100, step: 1, unit: '%', label: 'Headline X', group: 'Positionen' },
-  '--headline-y':    { min: 0, max: 100, step: 1, unit: '%', label: 'Headline Y', group: 'Positionen' },
-  '--price-block-x': { min: 0, max: 100, step: 1, unit: '%', label: 'Preis-Block X', group: 'Positionen' },
-  '--price-block-y': { min: 0, max: 100, step: 1, unit: '%', label: 'Preis-Block Y', group: 'Positionen' },
+  '--headline-rotation': { min: -15, max: 15, step: 1, unit: 'deg', label: 'Headline Winkel', group: 'Layout', section: 'headline' },
+  '--price-rotation':    { min: -10, max: 10, step: 1, unit: 'deg', label: 'Preis Winkel', group: 'Layout', section: 'price-block' },
+  '--location-rotation': { min: -15, max: 15, step: 1, unit: 'deg', label: 'Standort Winkel', group: 'Layout', section: 'location' },
+  '--content-padding':   { min: 16, max: 80, step: 4, unit: 'px', label: 'Innenabstand', group: 'Layout', section: 'background' },
 };
 
 function parseNumericValue(val: string): number {
   return parseFloat(val) || 0;
 }
 
-function varLabel(key: string): string {
-  return key.replace(/^--/, '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-}
+export function CssVarSlider({ variables, selectedSection, onChange }: CssVarSliderProps) {
+  if (!selectedSection) {
+    return (
+      <div className="text-[#9ca3af] text-sm text-center py-8">
+        Klicke auf ein Element im Vorschaubild, um dessen Stil anzupassen.
+      </div>
+    );
+  }
 
-export function CssVarSlider({ variables, onChange }: CssVarSliderProps) {
   // Group sliders
   const groups: Record<string, { key: string; value: string; config: typeof SLIDER_CONFIG[string] }[]> = {};
 
   for (const [key, value] of Object.entries(variables)) {
     const config = SLIDER_CONFIG[key];
-    if (!config) continue;
+    if (!config || config.section !== selectedSection) continue;
     if (!groups[config.group]) groups[config.group] = [];
     groups[config.group].push({ key, value, config });
   }
 
   // Also show sliders for config entries not in template (user can add them)
   for (const [key, config] of Object.entries(SLIDER_CONFIG)) {
-    if (!(key in variables)) {
+    if (config.section === selectedSection && !(key in variables)) {
       if (!groups[config.group]) groups[config.group] = [];
-      // Only add if group already has entries (don't show empty groups for unrelated vars)
-      const hasRelated = groups[config.group].length > 0;
-      if (!hasRelated && !['Layout'].includes(config.group)) continue;
       groups[config.group].push({ key, value: `${config.min}${config.unit}`, config });
     }
   }
 
+  // Convert RGB triplet "r, g, b" to hex for color picker
+  const rgbToHex = (rgb: string): string => {
+    const parts = rgb.split(',').map(s => parseInt(s.trim()));
+    if (parts.length < 3 || parts.some(isNaN)) return '#000000';
+    return '#' + parts.map(p => Math.max(0, Math.min(255, p)).toString(16).padStart(2, '0')).join('');
+  };
+
+  const hexToRgb = (hex: string): string => {
+    const c = hex.replace('#', '');
+    return `${parseInt(c.substring(0, 2), 16)}, ${parseInt(c.substring(2, 4), 16)}, ${parseInt(c.substring(4, 6), 16)}`;
+  };
+
+  const overlayColor = variables['--overlay-color'] || '0, 0, 0';
+  const showFilterColor = selectedSection === 'background' && '--overlay-color' in variables;
+
   return (
     <div className="space-y-4">
+      {selectedSection === 'headline' && (
+        <div>
+          <div className="text-[#6b7280] text-[10px] uppercase tracking-widest mb-2">Textumbruch</div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => onChange('--headline-wrap', 'nowrap')}
+              className={`flex-1 text-xs py-2 rounded-lg font-medium transition-all ${
+                (variables['--headline-wrap'] || 'normal') === 'nowrap'
+                  ? 'bg-[#00D4FF] text-black' : 'bg-white/[0.03] border border-white/10 text-[#6b7280]'
+              }`}>
+              Einzeilig
+            </button>
+            <button
+              onClick={() => onChange('--headline-wrap', 'normal')}
+              className={`flex-1 text-xs py-2 rounded-lg font-medium transition-all ${
+                (variables['--headline-wrap'] || 'normal') === 'normal'
+                  ? 'bg-[#00D4FF] text-black' : 'bg-white/[0.03] border border-white/10 text-[#6b7280]'
+              }`}>
+              Mehrzeilig
+            </button>
+          </div>
+        </div>
+      )}
       {Object.entries(groups).map(([group, items]) => (
         <div key={group}>
-          <div className="text-[#666] text-[10px] uppercase tracking-widest mb-2">{group}</div>
+          <div className="text-[#6b7280] text-[10px] uppercase tracking-widest mb-2">{group}</div>
           <div className="space-y-2.5">
             {items.map(({ key, value, config }) => {
               const numValue = parseNumericValue(value);
               return (
                 <div key={key}>
-                  <div className="flex justify-between text-xs text-[#aaa] mb-0.5">
+                  <div className="flex justify-between text-xs text-[#9ca3af] mb-0.5">
                     <span>{config.label}</span>
-                    <span className="text-[#666]">{numValue}{config.unit}</span>
+                    <span className="text-[#6b7280]">{numValue}{config.unit}</span>
                   </div>
                   <input
                     type="range"
@@ -82,7 +116,7 @@ export function CssVarSlider({ variables, onChange }: CssVarSliderProps) {
                     step={config.step}
                     value={numValue}
                     onChange={e => onChange(key, `${e.target.value}${config.unit}`)}
-                    className="w-full h-1 bg-[#333] rounded-lg appearance-none cursor-pointer accent-[#FF4500]"
+                    className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#00D4FF]"
                   />
                 </div>
               );
@@ -90,6 +124,31 @@ export function CssVarSlider({ variables, onChange }: CssVarSliderProps) {
           </div>
         </div>
       ))}
+
+      {showFilterColor && (
+        <div>
+          <div className="text-[#6b7280] text-[10px] uppercase tracking-widest mb-2">Filterfarbe</div>
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              value={rgbToHex(overlayColor)}
+              onChange={e => onChange('--overlay-color', hexToRgb(e.target.value))}
+              className="w-10 h-10 rounded cursor-pointer border border-white/10 bg-transparent"
+            />
+            <div className="flex gap-1.5">
+              {['#000000', '#1a0000', '#00001a', '#0a000a', '#1a1a00'].map(hex => (
+                <button
+                  key={hex}
+                  onClick={() => onChange('--overlay-color', hexToRgb(hex))}
+                  className="w-7 h-7 rounded border border-white/10 hover:border-[#00D4FF]/50 transition-colors"
+                  style={{ backgroundColor: hex }}
+                  title={hex}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

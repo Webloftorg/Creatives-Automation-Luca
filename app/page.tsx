@@ -22,27 +22,27 @@ export default function HomePage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-2xl font-bold">Creative Generator</h1>
-            <p className="text-[#666] text-sm mt-1">Fitness Ad Automation</p>
+            <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)] tracking-tight">Creative Generator</h1>
+            <p className="text-[#6b7280] text-sm mt-1">Fitness Ad Automation</p>
           </div>
           <button
             onClick={() => router.push('/onboarding')}
-            className="bg-[#FF4500] hover:bg-[#e63e00] text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            className="bg-[#00D4FF] hover:bg-[#00b4d8] text-black font-bold py-3 px-6 rounded-full transition-all btn-primary shadow-[0_4px_20px_rgba(0,212,255,0.3)]"
           >
             + Neues Studio
           </button>
         </div>
 
         {loading ? (
-          <div className="text-[#666]">Lade Studios...</div>
+          <div className="text-[#6b7280]">Lade Studios...</div>
         ) : studios.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-[#444] text-6xl mb-4">&#127947;</div>
-            <h2 className="text-xl font-semibold mb-2">Noch keine Studios</h2>
-            <p className="text-[#666] mb-6">Erstelle dein erstes Studio um loszulegen.</p>
+            <div className="text-[#4b5563] text-6xl mb-4">&#127947;</div>
+            <h2 className="text-xl font-semibold mb-2 font-[family-name:var(--font-heading)]">Noch keine Studios</h2>
+            <p className="text-[#6b7280] mb-6">Erstelle dein erstes Studio um loszulegen.</p>
             <button
               onClick={() => router.push('/onboarding')}
-              className="bg-[#FF4500] hover:bg-[#e63e00] text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className="bg-[#00D4FF] hover:bg-[#00b4d8] text-black font-bold py-3 px-6 rounded-full transition-all btn-primary shadow-[0_4px_20px_rgba(0,212,255,0.3)]"
             >
               Studio anlegen
             </button>

@@ -36,20 +36,20 @@ export function HeadlineSuggestions({ studioId, price, originalPrice, onSelect }
   return (
     <div className="relative">
       <button onClick={generate}
-        className="bg-[#FF4500] hover:bg-[#e63e00] rounded-lg px-3 py-2.5 text-white text-xs whitespace-nowrap font-semibold">
+        className="bg-[#00D4FF] hover:bg-[#00b4d8] rounded-full px-3 py-2.5 text-black text-xs whitespace-nowrap font-semibold btn-primary transition-all">
         {loading ? '...' : 'Vorschläge ✨'}
       </button>
 
       {open && suggestions.length > 0 && (
-        <div className="absolute top-full right-0 mt-1 bg-[#1a1a1a] border border-[#333] rounded-lg py-1 z-20 min-w-[250px] shadow-xl">
+        <div className="absolute top-full right-0 mt-1 glass-panel rounded-lg py-1 z-20 min-w-[250px] shadow-xl">
           {suggestions.map((s, i) => (
             <button key={i} onClick={() => { onSelect(s.headline); setOpen(false); }}
-              className="w-full text-left px-3 py-2 hover:bg-[#222] transition-colors">
+              className="w-full text-left px-3 py-2 hover:bg-white/[0.04] transition-colors">
               <div className="text-white text-sm font-semibold">{s.headline}</div>
-              {s.subline && <div className="text-[#666] text-xs">{s.subline}</div>}
+              {s.subline && <div className="text-[#6b7280] text-xs">{s.subline}</div>}
             </button>
           ))}
-          <button onClick={() => setOpen(false)} className="w-full text-center text-[#555] text-xs py-1.5 hover:text-white">
+          <button onClick={() => setOpen(false)} className="w-full text-center text-[#6b7280] text-xs py-1.5 hover:text-white">
             Schließen
           </button>
         </div>

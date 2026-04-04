@@ -23,12 +23,13 @@ router.post('/api/render', async (req: Request, res: Response) => {
       await page.setViewport({ width, height, deviceScaleFactor });
       await page.setContent(html, { waitUntil: 'networkidle0', timeout: 15000 });
       return await page.screenshot({
-        type: 'png',
+        type: 'jpeg',
+        quality: 90,
         clip: { x: 0, y: 0, width, height },
       });
     });
 
-    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Content-Type', 'image/jpeg');
     res.send(png);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Render failed';

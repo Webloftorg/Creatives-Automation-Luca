@@ -4,21 +4,22 @@ import type { Studio } from '@/lib/types';
 import Link from 'next/link';
 
 export function StudioCard({ studio }: { studio: Studio }) {
+  if (!studio?.name) return null;
   return (
     <Link href={`/studio/${studio.id}/creatives`}>
-      <div className="bg-[#111] border border-[#222] rounded-xl p-5 hover:border-[#FF4500] transition-colors cursor-pointer group">
+      <div className="glass-card rounded-xl p-5 cursor-pointer group transition-all duration-300 hover:-translate-y-0.5">
         <div className="flex items-center gap-3 mb-3">
           <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-lg"
-            style={{ backgroundColor: studio.primaryColor }}
+            className="w-10 h-10 rounded-lg flex items-center justify-center text-black font-bold text-lg shadow-[0_0_20px_rgba(0,212,255,0.2)]"
+            style={{ backgroundColor: studio.primaryColor || '#00D4FF' }}
           >
             {studio.name[0]}
           </div>
           <div>
-            <h3 className="font-semibold text-white group-hover:text-[#FF4500] transition-colors">
+            <h3 className="font-semibold text-white group-hover:text-[#00D4FF] transition-colors font-[family-name:var(--font-heading)]">
               {studio.name}
             </h3>
-            <p className="text-sm text-[#666]">{studio.location}</p>
+            <p className="text-sm text-[#6b7280]">{studio.location || ''}</p>
           </div>
         </div>
         <div className="flex gap-2">

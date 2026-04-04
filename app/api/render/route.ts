@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
       const error = await response.json();
       return NextResponse.json(error, { status: response.status });
     }
-    const png = await response.arrayBuffer();
-    return new NextResponse(Buffer.from(png), { headers: { 'Content-Type': 'image/png' } });
+    const buffer = await response.arrayBuffer();
+    return new Response(buffer, { headers: { 'Content-Type': 'image/jpeg' } });
   } catch {
     return NextResponse.json({ error: 'Rendering server unreachable. Is it running on port 3001?' }, { status: 502 });
   }

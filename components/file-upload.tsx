@@ -23,11 +23,11 @@ export function FileUpload({ onFiles, accept = 'image/*', multiple = true, label
 
   return (
     <label
-      className="flex flex-col items-center justify-center w-full h-32 border border-dashed border-[#444] rounded-lg cursor-pointer hover:border-[#FF4500] transition-colors bg-[#111]"
+      className="flex flex-col items-center justify-center w-full h-32 border border-dashed border-white/15 rounded-lg cursor-pointer hover:border-[#00D4FF]/50 transition-all bg-white/[0.02] hover:bg-[#00D4FF]/[0.03]"
       onDrop={handleDrop}
       onDragOver={e => e.preventDefault()}
     >
-      <span className="text-[#555] text-sm">{label}</span>
+      <span className="text-[#6b7280] text-sm">{label}</span>
       <input type="file" className="hidden" accept={accept} multiple={multiple} onChange={handleChange} />
     </label>
   );

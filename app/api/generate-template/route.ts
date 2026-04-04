@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { getStorage } from '@/lib/storage';
 import { DEFAULT_PROMPTS } from '@/lib/prompts';
-import { extractPlaceholders, extractCssVariables, placeholdersToDynamicFields } from '@/lib/template-utils';
+import { extractPlaceholders, extractCssVariables, placeholdersToDynamicFields, normalizeLayoutHtml } from '@/lib/template-utils';
 import { FORMAT_DIMENSIONS } from '@/lib/formats';
 import type { CreativeFormat } from '@/lib/types';
 
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   await storage.init();
 
   const isEditing = Boolean(baseTemplate);
-  const promptType = isEditing ? 'template-editing' : 'template-generation';
+  const promptType = isEditing ? 'template-editing' : 'parameter-variation';
 
   let systemPrompt = studioId ? await storage.getSystemPrompt(studioId, promptType) : '';
   if (!systemPrompt) systemPrompt = DEFAULT_PROMPTS[promptType];
@@ -60,6 +60,8 @@ export async function POST(req: NextRequest) {
     let html = message.content[0].type === 'text' ? message.content[0].text : '';
     // Strip markdown code fences if Claude wrapped the HTML
     html = html.replace(/^```(?:html)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+    // Normalize: inject missing CSS vars, data-draggable attrs, min sizes, neon glow
+    html = normalizeLayoutHtml(html);
     const placeholders = extractPlaceholders(html);
     const cssVariables = extractCssVariables(html);
     const dynamicFields = placeholdersToDynamicFields(placeholders);

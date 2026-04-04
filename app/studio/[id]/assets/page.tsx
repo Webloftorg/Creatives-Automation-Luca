@@ -61,12 +61,12 @@ export default function AssetsPage() {
     <div className="p-6 max-w-4xl">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-xl font-bold">Asset Library</h1>
-          <p className="text-[#666] text-sm mt-1">Verwalte alle Bilder für deine Creatives</p>
+          <h1 className="text-xl font-bold font-[family-name:var(--font-heading)]">Asset Library</h1>
+          <p className="text-[#6b7280] text-sm mt-1">Verwalte alle Bilder für deine Creatives</p>
         </div>
         <button
           onClick={() => setShowGenerator(!showGenerator)}
-          className="bg-[#FF4500] hover:bg-[#e63e00] text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
+          className="bg-[#00D4FF] hover:bg-[#00b4d8] text-black font-bold py-2 px-4 rounded-full text-sm transition-all btn-primary shadow-[0_4px_20px_rgba(0,212,255,0.3)]"
         >
           {showGenerator ? 'Schließen' : 'AI Bild generieren ✨'}
         </button>
@@ -81,8 +81,8 @@ export default function AssetsPage() {
       <div className="space-y-8">
         {ASSET_SECTIONS.map(section => (
           <div key={section.type}>
-            <h2 className="text-sm font-semibold text-[#aaa] uppercase tracking-wider mb-1">{section.label}</h2>
-            <p className="text-[#555] text-xs mb-3">{section.description}</p>
+            <h2 className="text-sm font-semibold text-[#9ca3af] uppercase tracking-wider mb-1">{section.label}</h2>
+            <p className="text-[#6b7280] text-xs mb-3">{section.description}</p>
             <AssetGrid
               assets={assets[section.type] || []}
               onDelete={deleteAsset}

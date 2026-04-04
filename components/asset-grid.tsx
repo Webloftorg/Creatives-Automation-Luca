@@ -23,8 +23,8 @@ export function AssetGrid({ assets, selected, onSelect, onDelete, size = 'md' }:
           <div
             key={i}
             onClick={() => onSelect?.(selected === path ? '' : path)}
-            className={`${sizeClass} relative rounded-lg overflow-hidden border-2 cursor-pointer transition-colors ${
-              selected === path ? 'border-[#FF4500]' : 'border-[#333] hover:border-[#555]'
+            className={`${sizeClass} relative rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${
+              selected === path ? 'border-[#00D4FF] shadow-[0_0_12px_rgba(0,212,255,0.3)]' : 'border-white/10 hover:border-white/25'
             }`}
           >
             <img src={url} alt="" className="w-full h-full object-cover" />

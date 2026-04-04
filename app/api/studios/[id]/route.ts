@@ -14,7 +14,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const storage = getStorage();
   await storage.init();
-  const data = await req.json();
-  await storage.saveStudio({ ...data, id });
-  return NextResponse.json({ ...data, id });
+  const existing = await storage.getStudio(id);
+  const raw = await req.json();
+  const { __proto__, constructor, prototype, ...data } = raw;
+  const merged = { ...existing, ...data, id };
+  await storage.saveStudio(merged);
+  return NextResponse.json(merged);
 }

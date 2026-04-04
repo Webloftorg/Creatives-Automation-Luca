@@ -15,12 +15,12 @@ export function Sidebar({ studioId, studioName }: { studioId: string; studioName
   const pathname = usePathname();
 
   return (
-    <div className="w-[52px] hover:w-[200px] bg-[#111] border-r border-[#222] flex flex-col py-4 transition-all duration-200 overflow-hidden group flex-shrink-0">
+    <div className="w-[52px] hover:w-[200px] glass-panel flex flex-col py-4 transition-all duration-300 overflow-hidden group flex-shrink-0 border-r-0" style={{ borderRight: '1px solid rgba(255,255,255,0.06)' }}>
       <Link href="/" className="px-[10px] mb-6 flex items-center gap-3">
-        <div className="w-8 h-8 bg-[#FF4500] rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+        <div className="w-8 h-8 bg-[#00D4FF] rounded-lg flex items-center justify-center text-black font-bold text-sm flex-shrink-0 shadow-[0_0_20px_rgba(0,212,255,0.3)]">
           {studioName?.[0] || 'S'}
         </div>
-        <span className="text-white text-sm font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="text-white text-sm font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity font-[var(--font-heading)]">
           {studioName || 'Studio'}
         </span>
       </Link>
@@ -31,8 +31,10 @@ export function Sidebar({ studioId, studioName }: { studioId: string; studioName
           const isActive = pathname === href;
           return (
             <Link key={item.path} href={href}
-              className={`flex items-center gap-3 rounded-lg px-2 py-2 transition-colors ${
-                isActive ? 'bg-[#FF4500]' : 'hover:bg-[#1a1a1a]'
+              className={`flex items-center gap-3 rounded-lg px-2 py-2 transition-all duration-200 ${
+                isActive
+                  ? 'bg-[#00D4FF]/15 text-[#00D4FF] shadow-[inset_0_0_20px_rgba(0,212,255,0.05)]'
+                  : 'hover:bg-white/[0.04] text-[#9ca3af] hover:text-white'
               }`}>
               <span className="text-base flex-shrink-0 w-8 text-center">{item.icon}</span>
               <span className="text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">

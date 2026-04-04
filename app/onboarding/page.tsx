@@ -19,9 +19,9 @@ export default function OnboardingPage() {
   // Step 1 state
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
-  const [primaryColor, setPrimaryColor] = useState('#FF4500');
-  const [secondaryColor, setSecondaryColor] = useState('#1a1a2e');
-  const [accentColor, setAccentColor] = useState('#FF6B00');
+  const [primaryColor, setPrimaryColor] = useState('#00D4FF');
+  const [secondaryColor, setSecondaryColor] = useState('#0e0e15');
+  const [accentColor, setAccentColor] = useState('#0090cc');
   const [font, setFont] = useState('Montserrat');
 
   // Step 2 state
@@ -30,7 +30,7 @@ export default function OnboardingPage() {
 
   // Step 3 state
   const [copyPrompt, setCopyPrompt] = useState(DEFAULT_PROMPTS['copy-generation']);
-  const [templatePrompt, setTemplatePrompt] = useState(DEFAULT_PROMPTS['template-generation']);
+  const [templatePrompt, setTemplatePrompt] = useState(DEFAULT_PROMPTS['parameter-variation']);
 
   const uploadFiles = async (files: File[], type: 'background' | 'person') => {
     for (const file of files) {
@@ -77,13 +77,13 @@ export default function OnboardingPage() {
         <div className="flex items-center gap-2 mb-8">
           {[1, 2, 3].map(s => (
             <div key={s} className="flex items-center gap-2 flex-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                step > s ? 'bg-[#222] border-2 border-[#4CAF50] text-[#4CAF50]' :
-                step === s ? 'bg-[#FF4500] text-white' : 'bg-[#222] text-[#666]'
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                step > s ? 'bg-[#15151e] border-2 border-[#22c55e] text-[#22c55e]' :
+                step === s ? 'bg-[#00D4FF] text-black shadow-[0_0_20px_rgba(0,212,255,0.3)]' : 'bg-[#15151e] text-[#6b7280]'
               }`}>
                 {step > s ? '\u2713' : s}
               </div>
-              {s < 3 && <div className={`flex-1 h-0.5 ${step > s ? 'bg-[#4CAF50]' : 'bg-[#333]'}`} />}
+              {s < 3 && <div className={`flex-1 h-0.5 ${step > s ? 'bg-[#22c55e]' : 'bg-white/10'}`} />}
             </div>
           ))}
         </div>
@@ -91,23 +91,23 @@ export default function OnboardingPage() {
         {/* Step 1: Grunddaten */}
         {step === 1 && (
           <div>
-            <h2 className="text-xl font-bold mb-1">Studio-Grunddaten</h2>
-            <p className="text-[#666] text-sm mb-6">Name, Standort und Branding deines Studios</p>
+            <h2 className="text-xl font-bold mb-1 font-[family-name:var(--font-heading)]">Studio-Grunddaten</h2>
+            <p className="text-[#6b7280] text-sm mb-6">Name, Standort und Branding deines Studios</p>
             <div className="space-y-4">
               <div>
-                <label className="text-[#aaa] text-xs uppercase tracking-wider">Studioname</label>
+                <label className="text-[#9ca3af] text-xs uppercase tracking-wider">Studioname</label>
                 <input value={name} onChange={e => setName(e.target.value)}
-                  className="w-full bg-[#111] border border-[#333] rounded-lg px-3 py-3 text-white mt-1 outline-none focus:border-[#FF4500]"
+                  className="w-full bg-[#0e0e15] border border-white/10 rounded-lg px-3 py-3 text-white mt-1 outline-none focus:border-[#00D4FF]/50"
                   placeholder="z.B. FitX Power Gym" />
               </div>
               <div>
-                <label className="text-[#aaa] text-xs uppercase tracking-wider">Standort</label>
+                <label className="text-[#9ca3af] text-xs uppercase tracking-wider">Standort</label>
                 <input value={location} onChange={e => setLocation(e.target.value)}
-                  className="w-full bg-[#111] border border-[#333] rounded-lg px-3 py-3 text-white mt-1 outline-none focus:border-[#FF4500]"
+                  className="w-full bg-[#0e0e15] border border-white/10 rounded-lg px-3 py-3 text-white mt-1 outline-none focus:border-[#00D4FF]/50"
                   placeholder="z.B. Weissenthurm" />
               </div>
               <div>
-                <label className="text-[#aaa] text-xs uppercase tracking-wider mb-2 block">Farben</label>
+                <label className="text-[#9ca3af] text-xs uppercase tracking-wider mb-2 block">Farben</label>
                 <div className="flex gap-3">
                   <ColorPicker label="Prim\u00e4r" value={primaryColor} onChange={setPrimaryColor} />
                   <ColorPicker label="Sekund\u00e4r" value={secondaryColor} onChange={setSecondaryColor} />
@@ -115,15 +115,15 @@ export default function OnboardingPage() {
                 </div>
               </div>
               <div>
-                <label className="text-[#aaa] text-xs uppercase tracking-wider">Font</label>
+                <label className="text-[#9ca3af] text-xs uppercase tracking-wider">Font</label>
                 <select value={font} onChange={e => setFont(e.target.value)}
-                  className="w-full bg-[#111] border border-[#333] rounded-lg px-3 py-3 text-white mt-1 outline-none">
+                  className="w-full bg-[#0e0e15] border border-white/10 rounded-lg px-3 py-3 text-white mt-1 outline-none">
                   {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
                 </select>
               </div>
             </div>
             <button onClick={() => setStep(2)} disabled={!name || !location}
-              className="w-full bg-[#FF4500] hover:bg-[#e63e00] disabled:opacity-50 text-white font-bold py-3 rounded-lg mt-6 transition-colors">
+              className="w-full bg-[#00D4FF] hover:bg-[#00b4d8] disabled:opacity-50 text-black font-bold py-3 rounded-full mt-6 transition-all btn-primary shadow-[0_4px_20px_rgba(0,212,255,0.3)]">
               Weiter {'\u2192'}
             </button>
           </div>
@@ -132,18 +132,18 @@ export default function OnboardingPage() {
         {/* Step 2: Assets */}
         {step === 2 && (
           <div>
-            <h2 className="text-xl font-bold mb-1">Assets hochladen</h2>
-            <p className="text-[#666] text-sm mb-6">Bilder f\u00fcr deine Creatives -- hochladen oder per AI generieren</p>
+            <h2 className="text-xl font-bold mb-1 font-[family-name:var(--font-heading)]">Assets hochladen</h2>
+            <p className="text-[#6b7280] text-sm mb-6">Bilder f\u00fcr deine Creatives -- hochladen oder per AI generieren</p>
             <div className="space-y-6">
               <div>
-                <label className="text-[#aaa] text-xs uppercase tracking-wider mb-2 block">Hintergrundbilder (Gym-Fotos)</label>
+                <label className="text-[#9ca3af] text-xs uppercase tracking-wider mb-2 block">Hintergrundbilder (Gym-Fotos)</label>
                 <div className="flex gap-2 flex-wrap mb-2">
                   {backgroundPaths.map((p, i) => {
                     const url = (p.includes('data/assets/') || p.includes('data\\assets\\'))
                       ? `/api/assets/serve?path=${encodeURIComponent(p)}`
                       : p;
                     return (
-                      <div key={i} className="w-20 h-20 bg-[#1a1a1a] border border-[#333] rounded-lg overflow-hidden">
+                      <div key={i} className="w-20 h-20 bg-[#15151e] border border-white/10 rounded-lg overflow-hidden">
                         <img src={url} alt="" className="w-full h-full object-cover" />
                       </div>
                     );
@@ -155,15 +155,15 @@ export default function OnboardingPage() {
                 </div>
               </div>
               <div>
-                <label className="text-[#aaa] text-xs uppercase tracking-wider mb-1 block">Personen-Bilder</label>
-                <p className="text-[#555] text-xs mb-2">Transparenter Hintergrund empfohlen</p>
+                <label className="text-[#9ca3af] text-xs uppercase tracking-wider mb-1 block">Personen-Bilder</label>
+                <p className="text-[#6b7280] text-xs mb-2">Transparenter Hintergrund empfohlen</p>
                 <div className="flex gap-2 flex-wrap mb-2">
                   {personPaths.map((p, i) => {
                     const url = (p.includes('data/assets/') || p.includes('data\\assets\\'))
                       ? `/api/assets/serve?path=${encodeURIComponent(p)}`
                       : p;
                     return (
-                      <div key={i} className="w-20 h-20 bg-[#1a1a1a] border border-[#333] rounded-lg overflow-hidden">
+                      <div key={i} className="w-20 h-20 bg-[#15151e] border border-white/10 rounded-lg overflow-hidden">
                         <img src={url} alt="" className="w-full h-full object-cover" />
                       </div>
                     );
@@ -176,8 +176,8 @@ export default function OnboardingPage() {
               </div>
             </div>
             <div className="flex gap-2 mt-6">
-              <button onClick={() => setStep(1)} className="bg-[#222] border border-[#333] text-[#aaa] rounded-lg px-6 py-3 transition-colors">{'\u2190'} Zur\u00fcck</button>
-              <button onClick={() => setStep(3)} className="flex-1 bg-[#FF4500] hover:bg-[#e63e00] text-white font-bold py-3 rounded-lg transition-colors">Weiter {'\u2192'}</button>
+              <button onClick={() => setStep(1)} className="bg-white/[0.045] border border-white/10 text-[#9ca3af] rounded-full px-6 py-3 transition-all hover:bg-white/[0.08]">{'\u2190'} Zur\u00fcck</button>
+              <button onClick={() => setStep(3)} className="flex-1 bg-[#00D4FF] hover:bg-[#00b4d8] text-black font-bold py-3 rounded-full transition-all btn-primary">Weiter {'\u2192'}</button>
             </div>
           </div>
         )}
@@ -185,33 +185,33 @@ export default function OnboardingPage() {
         {/* Step 3: Stil */}
         {step === 3 && (
           <div>
-            <h2 className="text-xl font-bold mb-1">Stil pr\u00fcfen</h2>
-            <p className="text-[#666] text-sm mb-6">Passe die AI-Prompts an den Stil deines Studios an</p>
+            <h2 className="text-xl font-bold mb-1 font-[family-name:var(--font-heading)]">Stil pr\u00fcfen</h2>
+            <p className="text-[#6b7280] text-sm mb-6">Passe die AI-Prompts an den Stil deines Studios an</p>
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <label className="text-[#aaa] text-xs uppercase tracking-wider">Headline-Stil</label>
+                  <label className="text-[#9ca3af] text-xs uppercase tracking-wider">Headline-Stil</label>
                   <button onClick={() => setCopyPrompt(DEFAULT_PROMPTS['copy-generation'])}
-                    className="text-[#666] text-xs border border-[#333] rounded px-2 py-0.5 hover:text-white">Standard</button>
+                    className="text-[#6b7280] text-xs border border-white/10 rounded px-2 py-0.5 hover:text-white">Standard</button>
                 </div>
-                <p className="text-[#555] text-xs mb-2">Steuert wie die AI Headlines und CTAs f\u00fcr dein Studio generiert</p>
+                <p className="text-[#6b7280] text-xs mb-2">Steuert wie die AI Headlines und CTAs f\u00fcr dein Studio generiert</p>
                 <textarea value={copyPrompt} onChange={e => setCopyPrompt(e.target.value)}
-                  className="w-full bg-[#111] border border-[#333] rounded-lg p-3 text-[#aaa] text-xs h-24 resize-none outline-none focus:border-[#FF4500]" />
+                  className="w-full bg-[#0e0e15] border border-white/10 rounded-lg p-3 text-[#9ca3af] text-xs h-24 resize-none outline-none focus:border-[#00D4FF]/50" />
               </div>
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <label className="text-[#aaa] text-xs uppercase tracking-wider">Template-Stil</label>
-                  <button onClick={() => setTemplatePrompt(DEFAULT_PROMPTS['template-generation'])}
-                    className="text-[#666] text-xs border border-[#333] rounded px-2 py-0.5 hover:text-white">Standard</button>
+                  <label className="text-[#9ca3af] text-xs uppercase tracking-wider">Template-Stil</label>
+                  <button onClick={() => setTemplatePrompt(DEFAULT_PROMPTS['parameter-variation'])}
+                    className="text-[#6b7280] text-xs border border-white/10 rounded px-2 py-0.5 hover:text-white">Standard</button>
                 </div>
-                <p className="text-[#555] text-xs mb-2">Steuert wie die AI neue Templates f\u00fcr dein Studio designt</p>
+                <p className="text-[#6b7280] text-xs mb-2">Steuert wie die AI neue Templates f\u00fcr dein Studio designt</p>
                 <textarea value={templatePrompt} onChange={e => setTemplatePrompt(e.target.value)}
-                  className="w-full bg-[#111] border border-[#333] rounded-lg p-3 text-[#aaa] text-xs h-24 resize-none outline-none focus:border-[#FF4500]" />
+                  className="w-full bg-[#0e0e15] border border-white/10 rounded-lg p-3 text-[#9ca3af] text-xs h-24 resize-none outline-none focus:border-[#00D4FF]/50" />
               </div>
             </div>
             <div className="flex gap-2 mt-6">
-              <button onClick={() => setStep(2)} className="bg-[#222] border border-[#333] text-[#aaa] rounded-lg px-6 py-3">{'\u2190'} Zur\u00fcck</button>
-              <button onClick={createStudio} className="flex-1 bg-[#4CAF50] hover:bg-[#45a049] text-white font-bold py-3 rounded-lg transition-colors">Studio erstellen {'\u2713'}</button>
+              <button onClick={() => setStep(2)} className="bg-white/[0.045] border border-white/10 text-[#9ca3af] rounded-full px-6 py-3 hover:bg-white/[0.08] transition-all">{'\u2190'} Zur\u00fcck</button>
+              <button onClick={createStudio} className="flex-1 bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold py-3 rounded-full transition-all shadow-[0_4px_20px_rgba(34,197,94,0.3)]">Studio erstellen {'\u2713'}</button>
             </div>
           </div>
         )}

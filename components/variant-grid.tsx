@@ -9,11 +9,14 @@ interface VariantGridProps {
   formats: CreativeFormat[];
   onToggleApproved: (variantId: string) => void;
   onEdit: (variantId: string) => void;
+  onRegenerate: (variantId: string) => void;
   onRender: () => void;
   rendering: boolean;
+  onFeedback: (variantId: string, rating: 'good' | 'bad', comment?: string) => void;
+  feedbackMap: Record<string, 'good' | 'bad'>;
 }
 
-export function VariantGrid({ variants, formats, onToggleApproved, onEdit, onRender, rendering }: VariantGridProps) {
+export function VariantGrid({ variants, formats, onToggleApproved, onEdit, onRegenerate, onRender, rendering, onFeedback, feedbackMap }: VariantGridProps) {
   const approvedCount = variants.filter(v => v.approved).length;
   const totalPngs = approvedCount * formats.length;
 
@@ -27,18 +30,21 @@ export function VariantGrid({ variants, formats, onToggleApproved, onEdit, onRen
               variant={v}
               onToggleApproved={() => onToggleApproved(v.id)}
               onEdit={() => onEdit(v.id)}
+              onRegenerate={() => onRegenerate(v.id)}
+              feedback={feedbackMap[v.id] || null}
+              onFeedback={(rating, comment) => onFeedback(v.id, rating, comment)}
             />
           ))}
         </div>
       </div>
 
       {/* Footer bar */}
-      <div className="bg-[#111] border-t border-[#222] px-6 py-4 flex justify-between items-center flex-shrink-0">
-        <span className="text-[#888] text-sm">
+      <div className="glass-panel px-6 py-4 flex justify-between items-center flex-shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <span className="text-[#9ca3af] text-sm">
           {approvedCount} von {variants.length} Varianten aktiv
         </span>
         <button onClick={onRender} disabled={rendering || approvedCount === 0}
-          className="bg-[#FF4500] hover:bg-[#e63e00] disabled:opacity-50 text-white font-bold py-2.5 px-6 rounded-lg text-sm transition-colors">
+          className="bg-[#00D4FF] hover:bg-[#00b4d8] disabled:opacity-50 text-black font-bold py-2.5 px-6 rounded-full text-sm transition-all btn-primary shadow-[0_4px_20px_rgba(0,212,255,0.3)]">
           {rendering
             ? 'Rendering...'
             : `Alle rendern (${approvedCount} × ${formats.length} = ${totalPngs} PNGs)`}

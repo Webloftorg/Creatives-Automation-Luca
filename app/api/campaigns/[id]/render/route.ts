@@ -64,9 +64,9 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
         if (!res.ok) throw new Error('Render failed');
 
-        const png = Buffer.from(await res.arrayBuffer());
-        const filename = `variant-${variant.id}-${task.format}.png`;
-        await fs.writeFile(path.join(outputDir, filename), png);
+        const buffer = Buffer.from(await res.arrayBuffer());
+        const filename = `variant-${variant.id}-${task.format}.jpg`;
+        await fs.writeFile(path.join(outputDir, filename), buffer);
 
         variant.outputs[task.formatIdx] = {
           format: task.format,

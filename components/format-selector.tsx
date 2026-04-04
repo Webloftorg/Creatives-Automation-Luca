@@ -15,10 +15,10 @@ export function FormatSelector({ selected, onChange }: FormatSelectorProps) {
         <button
           key={key}
           onClick={() => onChange(key as CreativeFormat)}
-          className={`text-xs py-1.5 px-2 rounded-md font-medium transition-colors ${
+          className={`text-xs py-1.5 px-2 rounded-md font-medium transition-all ${
             selected === key
-              ? 'bg-[#FF4500] text-white'
-              : 'bg-[#1a1a1a] border border-[#333] text-[#888] hover:text-white'
+              ? 'bg-[#00D4FF] text-black'
+              : 'bg-white/[0.03] border border-white/10 text-[#9ca3af] hover:text-white hover:border-[#00D4FF]/30'
           }`}
         >
           {val.width}×{val.height}

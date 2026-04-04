@@ -9,6 +9,29 @@ interface RenderProgressProps {
   onDownloadAll: () => void;
 }
 
+function triggerDownload(url: string, filename: string) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+async function downloadSingleFile(outputPath: string, format: string, headline: string) {
+  try {
+    const res = await fetch(outputPath);
+    if (!res.ok) throw new Error('Fetch failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    triggerDownload(url, `${headline || 'creative'}-${format}.jpg`);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch {
+    // Fallback: direct link
+    triggerDownload(outputPath, `${headline || 'creative'}-${format}.jpg`);
+  }
+}
+
 export function RenderProgress({ variants, formats, onDownloadAll }: RenderProgressProps) {
   const approvedVariants = variants.filter(v => v.approved);
   const totalRenders = approvedVariants.length * formats.length;
@@ -26,11 +49,11 @@ export function RenderProgress({ variants, formats, onDownloadAll }: RenderProgr
       {/* Progress bar */}
       <div className="mb-6">
         <div className="flex justify-between text-sm mb-2">
-          <span className="text-[#888]">{doneRenders} von {totalRenders} fertig</span>
-          <span className="text-[#888]">{progress}%</span>
+          <span className="text-[#9ca3af]">{doneRenders} von {totalRenders} fertig</span>
+          <span className="text-[#9ca3af]">{progress}%</span>
         </div>
-        <div className="w-full h-2 bg-[#222] rounded-full overflow-hidden">
-          <div className="h-full bg-[#FF4500] rounded-full transition-all duration-300"
+        <div className="w-full h-2 bg-white/[0.045] rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-[#00D4FF] to-[#0090cc] rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(0,212,255,0.3)]"
             style={{ width: `${progress}%` }} />
         </div>
         {errorRenders > 0 && (
@@ -41,7 +64,7 @@ export function RenderProgress({ variants, formats, onDownloadAll }: RenderProgr
       {/* Variant results grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {approvedVariants.map(variant => (
-          <div key={variant.id} className="bg-[#111] border border-[#333] rounded-xl overflow-hidden">
+          <div key={variant.id} className="glass-card rounded-xl overflow-hidden">
             <div className="p-3">
               <p className="text-white text-sm font-semibold truncate mb-2">
                 {variant.fieldValues.headline || 'Variante'}
@@ -49,18 +72,19 @@ export function RenderProgress({ variants, formats, onDownloadAll }: RenderProgr
               <div className="space-y-1.5">
                 {variant.outputs.map((output, i) => (
                   <div key={i} className="flex justify-between items-center">
-                    <span className="text-[#666] text-xs">{output.format}</span>
+                    <span className="text-[#6b7280] text-xs">{output.format}</span>
                     {output.status === 'done' && output.outputPath ? (
-                      <a href={output.outputPath} download
-                        className="text-[#4CAF50] text-xs hover:underline">
+                      <button
+                        onClick={() => downloadSingleFile(output.outputPath!, output.format, variant.fieldValues.headline || 'creative')}
+                        className="text-[#22c55e] text-xs hover:underline cursor-pointer bg-transparent border-none">
                         ✓ Download
-                      </a>
+                      </button>
                     ) : output.status === 'rendering' ? (
-                      <span className="text-[#FF4500] text-xs">Rendering...</span>
+                      <span className="text-[#00D4FF] text-xs">Rendering...</span>
                     ) : output.status === 'error' ? (
                       <span className="text-red-400 text-xs">Fehler</span>
                     ) : (
-                      <span className="text-[#444] text-xs">Warten...</span>
+                      <span className="text-[#4b5563] text-xs">Warten...</span>
                     )}
                   </div>
                 ))}
@@ -73,7 +97,7 @@ export function RenderProgress({ variants, formats, onDownloadAll }: RenderProgr
       {/* Download all */}
       {allDone && doneRenders > 0 && (
         <button onClick={onDownloadAll}
-          className="w-full mt-6 bg-[#FF4500] hover:bg-[#e63e00] text-white font-bold py-4 rounded-lg text-base transition-colors">
+          className="w-full mt-6 bg-[#00D4FF] hover:bg-[#00b4d8] text-black font-bold py-4 rounded-full text-base transition-all btn-primary shadow-[0_8px_32px_rgba(0,212,255,0.3)]">
           Alle als ZIP herunterladen ({doneRenders} PNGs)
         </button>
       )}

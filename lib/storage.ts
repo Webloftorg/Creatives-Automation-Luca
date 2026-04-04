@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import type { Studio, SavedTemplate, Creative, Campaign, StorageAdapter, PromptType, AssetType } from './types';
+import type { Studio, SavedTemplate, Creative, Campaign, StorageAdapter, PromptType, AssetType, CreativeFeedback } from './types';
 
 export class FilesystemStorage implements StorageAdapter {
   private basePath: string;
@@ -9,16 +9,34 @@ export class FilesystemStorage implements StorageAdapter {
     this.basePath = basePath || path.join(process.cwd(), 'data');
   }
 
+  private validateId(id: string): void {
+    if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+      throw new Error(`Invalid ID: contains disallowed characters`);
+    }
+    if (id.length > 200) {
+      throw new Error(`Invalid ID: too long`);
+    }
+  }
+
+  private safePath(...segments: string[]): string {
+    const resolved = path.resolve(this.basePath, ...segments);
+    if (!resolved.startsWith(path.resolve(this.basePath))) {
+      throw new Error('Path traversal detected');
+    }
+    return resolved;
+  }
+
   async init(): Promise<void> {
-    const dirs = ['studios', 'templates', 'creatives', 'prompts', 'assets', 'campaigns'];
+    const dirs = ['studios', 'templates', 'creatives', 'prompts', 'assets', 'campaigns', 'feedback'];
     for (const dir of dirs) {
       await fs.mkdir(path.join(this.basePath, dir), { recursive: true });
     }
   }
 
   async getStudio(id: string): Promise<Studio | null> {
+    this.validateId(id);
     try {
-      const data = await fs.readFile(path.join(this.basePath, 'studios', `${id}.json`), 'utf-8');
+      const data = await fs.readFile(this.safePath('studios', `${id}.json`), 'utf-8');
       return JSON.parse(data);
     } catch { return null; }
   }
@@ -121,6 +139,31 @@ export class FilesystemStorage implements StorageAdapter {
 
   async saveSystemPrompt(studioId: string, type: PromptType, prompt: string): Promise<void> {
     await fs.writeFile(path.join(this.basePath, 'prompts', `${studioId}-${type}.txt`), prompt);
+  }
+
+  async saveFeedback(feedback: CreativeFeedback): Promise<void> {
+    await fs.writeFile(
+      path.join(this.basePath, 'feedback', `${feedback.id}.json`),
+      JSON.stringify(feedback, null, 2),
+    );
+  }
+
+  async listFeedback(studioId: string): Promise<CreativeFeedback[]> {
+    const dir = path.join(this.basePath, 'feedback');
+    try {
+      const files = await fs.readdir(dir);
+      const all = await Promise.all(
+        files.filter(f => f.endsWith('.json')).map(async f => {
+          try {
+            const data = await fs.readFile(path.join(dir, f), 'utf-8');
+            return JSON.parse(data) as CreativeFeedback;
+          } catch { return null; }
+        }),
+      );
+      return all.filter((f): f is CreativeFeedback => f !== null && f.studioId === studioId)
+        .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+        .slice(0, 100);
+    } catch { return []; }
   }
 
   private async listJsonFiles(subdir: string): Promise<string[]> {
