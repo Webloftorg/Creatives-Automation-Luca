@@ -264,31 +264,8 @@ function ensureCreativeContainer(html: string): string {
   return html;
 }
 
-function ensureNeonGlow(html: string): string {
-  // Controllable glow via --price-glow (0 = clean text, 1 = extreme neon)
-  // Multipliers are large so the slider has real visible impact
-  const neonStyle = `
-<style>
-  .price {
-    color: var(--accent-color) !important;
-    text-shadow:
-      0 0 calc(20px * var(--price-glow, 0.5)) var(--accent-color),
-      0 0 calc(60px * var(--price-glow, 0.5)) var(--accent-color),
-      0 0 calc(120px * var(--price-glow, 0.5)) var(--accent-color),
-      0 0 calc(200px * var(--price-glow, 0.5)) var(--accent-color),
-      0 2px 4px rgba(0,0,0,0.8) !important;
-    filter: brightness(calc(1 + 0.6 * var(--price-glow, 0.5))) !important;
-  }
-</style>`;
-
-  // Remove old hardcoded neon style if present
-  let result = html.replace(/<style>\s*\.price\s*\{[^}]*0 0 60px var\(--accent-color\)[^}]*\}\s*<\/style>/g, '');
-
-  if (result.includes('</head>')) {
-    return result.replace('</head>', `${neonStyle}\n</head>`);
-  }
-  return neonStyle + result;
-}
+// Neon glow is now controlled directly in template CSS via --price-glow variable.
+// No injection needed - templates use calc(Xpx * var(--price-glow)) in text-shadow.
 
 // ─── CSS Variation Clamping ──────────────────────────────────────────────────
 
@@ -374,6 +351,6 @@ export function normalizeLayoutHtml(html: string): string {
   result = enforceHierarchy(result);
   result = ensureCreativeContainer(result);
   result = ensureDraggableAttributes(result);
-  result = ensureNeonGlow(result);
+  // Neon glow handled by --price-glow in template CSS
   return result;
 }

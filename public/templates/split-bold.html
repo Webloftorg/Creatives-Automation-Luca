@@ -33,6 +33,7 @@
       --overlay-opacity: 0.3;
       --overlay-color: 0, 0, 0;
       --headline-wrap: normal;
+      --price-glow: 0.5;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -161,10 +162,10 @@
       font-weight: 900;
       color: var(--accent-color);
       text-shadow:
-        0 0 10px var(--accent-color),
-        0 0 30px var(--accent-color),
-        0 0 60px var(--accent-color),
-        0 0 100px var(--accent-color),
+        0 0 calc(20px * var(--price-glow, 0.5)) var(--accent-color),
+        0 0 calc(60px * var(--price-glow, 0.5)) var(--accent-color),
+        0 0 calc(120px * var(--price-glow, 0.5)) var(--accent-color),
+        0 0 calc(200px * var(--price-glow, 0.5)) var(--accent-color),
         0 2px 4px rgba(0,0,0,0.8);
       line-height: 1.0;
       letter-spacing: -2px;
