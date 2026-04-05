@@ -1,8 +1,9 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { extractCssVariables } from '../lib/template-utils';
+import { getStorage } from '../lib/storage';
 
-// ─── Master template definitions ────────────────────────────────────────────
+// ─── Master template definitions ─────��──────────────────────────────────────
 
 const TEMPLATES = [
   {
@@ -30,7 +31,7 @@ const TEMPLATES = [
     id: 'full-impact',
     name: 'Full Impact (Vorverkauf-Stil)',
     description:
-      'Volle Fläche, maximale Wirkung – großer Preis, kräftige Farben, Urgency-Stil.',
+      'Volle Fläche, maximale Wirkung – großer Preis, kr��ftige Farben, Urgency-Stil.',
     htmlFile: 'full-impact.html',
   },
   {
@@ -51,20 +52,11 @@ const DYNAMIC_FIELDS = [
   { key: 'personImage', label: 'Person', type: 'image' as const, required: true },
 ];
 
-// ─── Seed logic ─────────────────────────────────────────────────────────────
+// ─── Seed logic ──────────────────────────────────────────���──────────────────
 
 async function seed() {
-  const outDir = path.join(process.cwd(), 'data/templates');
-  await fs.mkdir(outDir, { recursive: true });
-
-  // Remove legacy file from the old single-template seed
-  const legacyPath = path.join(outDir, 'reference-price-offer.json');
-  try {
-    await fs.unlink(legacyPath);
-    console.log('Deleted legacy file: reference-price-offer.json');
-  } catch {
-    // File didn't exist – nothing to do
-  }
+  const storage = getStorage();
+  await storage.init();
 
   const now = new Date().toISOString();
 
@@ -73,11 +65,10 @@ async function seed() {
     const htmlContent = await fs.readFile(htmlPath, 'utf-8');
     const cssVariables = extractCssVariables(htmlContent);
 
-    const saved = {
+    await storage.saveTemplate({
       id: tpl.id,
       name: tpl.name,
       description: tpl.description,
-      studioId: undefined,
       type: 'price-offer',
       htmlContent,
       cssVariables,
@@ -85,14 +76,12 @@ async function seed() {
       version: 1,
       createdAt: now,
       updatedAt: now,
-    };
+    });
 
-    const outPath = path.join(outDir, `${tpl.id}.json`);
-    await fs.writeFile(outPath, JSON.stringify(saved, null, 2));
     console.log(`Seeded: ${tpl.id}  (${tpl.name})`);
   }
 
-  console.log(`\nDone – ${TEMPLATES.length} templates written to ${outDir}`);
+  console.log(`\nDone – ${TEMPLATES.length} templates seeded`);
 }
 
 seed();
