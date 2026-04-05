@@ -29,11 +29,13 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --omit=dev
+# Install ALL deps (tsx is in devDeps but needed to run)
+RUN npm ci
 
 COPY . .
 
+# Railway injects PORT env var - use it
+ENV RENDER_PORT=${PORT:-3001}
 EXPOSE 3001
-ENV RENDER_PORT=3001
 
 CMD ["npx", "tsx", "src/index.ts"]

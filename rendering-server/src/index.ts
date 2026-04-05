@@ -4,7 +4,7 @@ import renderRouter from './routes/render.js';
 import { closeBrowser } from './utils/browser.js';
 
 const app = express();
-const PORT = process.env.RENDER_PORT || 3001;
+const PORT = process.env.PORT || process.env.RENDER_PORT || 3001;
 
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',')
