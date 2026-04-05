@@ -1,13 +1,11 @@
 // app/api/campaigns/[id]/regenerate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
 import { getStorage } from '@/lib/storage';
-import { DEFAULT_PROMPTS } from '@/lib/prompts';
 import { extractCssVariables, clampCssVariation } from '@/lib/template-utils';
 import { v4 as uuidv4 } from 'uuid';
 import type { CampaignVariant } from '@/lib/types';
 
-const anthropic = new Anthropic();
+export const maxDuration = 60;
 
 function applyCssOverrides(html: string, overrides: Record<string, string>): string {
   let result = html;
@@ -21,9 +19,79 @@ function applyCssOverrides(html: string, overrides: Record<string, string>): str
   return result;
 }
 
+async function generateSimilarImage(
+  originalBgUrl: string,
+  studioId: string,
+  req: NextRequest,
+): Promise<string | null> {
+  const apiKey = process.env.GOOGLE_API_KEY;
+  if (!apiKey || !originalBgUrl) return null;
+
+  try {
+    // Describe the original image style via Claude, then generate similar
+    const Anthropic = (await import('@anthropic-ai/sdk')).default;
+    const anthropic = new Anthropic();
+
+    // Fetch the original image to analyze its style
+    const origin = req.nextUrl.origin;
+    const imgUrl = originalBgUrl.startsWith('http') ? originalBgUrl : `${origin}${originalBgUrl}`;
+    const imgRes = await fetch(imgUrl);
+    if (!imgRes.ok) return null;
+    const imgBuffer = Buffer.from(await imgRes.arrayBuffer());
+    const base64 = imgBuffer.toString('base64');
+
+    // Ask Claude to describe the style for re-generation
+    const analysis = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 256,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } },
+          { type: 'text', text: 'Describe this fitness ad background photo in 1-2 sentences for regenerating a SIMILAR but not identical image. Focus on: lighting, setting, colors, mood, person pose/type if visible. Be specific about the style. Answer in English only. NO text descriptions, just visual style.' },
+        ],
+      }],
+    });
+
+    const styleDesc = analysis.content[0].type === 'text' ? analysis.content[0].text : '';
+    if (!styleDesc) return null;
+
+    // Generate similar image
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          instances: [{ prompt: `Photorealistic real photography, similar style: ${styleDesc}. Professional fitness advertising photo, high quality. Slight variation in angle/pose/lighting. ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS, NO LOGOS in the image.` }],
+          parameters: { sampleCount: 1, aspectRatio: '1:1' },
+        }),
+      },
+    );
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    const base64Image = data.predictions?.[0]?.bytesBase64Encoded;
+    if (!base64Image) return null;
+
+    const buffer = Buffer.from(base64Image, 'base64');
+    const storage = getStorage();
+    await storage.init();
+    return await storage.uploadAsset(buffer, 'regenerated.png', studioId, 'background');
+  } catch (err) {
+    console.error('Similar image generation failed:', err);
+    return null;
+  }
+}
+
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { variantId, prompt, count } = await req.json();
+  const body = await req.json();
+  const { variantId, count, mode } = body as {
+    variantId: string;
+    count?: number;
+    mode?: 'vary-style' | 'duplicate-vary';
+  };
 
   const storage = getStorage();
   await storage.init();
@@ -34,66 +102,73 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const sourceVariant = campaign.variants.find(v => v.id === variantId);
   if (!sourceVariant) return NextResponse.json({ error: 'Variant not found' }, { status: 404 });
 
-  // 1. Extract CSS variables from source variant's template
+  const numVariants = Math.min(count || 2, 4);
   const currentVars = extractCssVariables(sourceVariant.templateHtml);
+  const origin = req.nextUrl.origin;
 
-  // 2. Load the parameter-variation prompt (uses evolved global prompt if available)
-  const { getEvolvedPrompt } = await import('@/lib/evolved-prompts');
-  let paramPrompt = await getEvolvedPrompt(campaign.studioId, 'parameter-variation');
-
-  const numVariations = Math.min(count || 3, 5);
-
-  // 3. Build user message: current CSS vars + count + optional user feedback
-  const varList = Object.entries(currentVars)
-    .map(([k, v]) => `${k}: ${v}`)
-    .join('\n');
-
-  let userMessage = `Aktuelle CSS-Variablen:\n${varList}\n\nGeneriere ${numVariations} verschiedene Layout-Variationen als JSON-Array.`;
-  if (prompt) {
-    userMessage += `\n\nNutzerfeedback: "${prompt}"`;
-  }
-
-  // 4. Call Claude to generate CSS variable overrides
-  let cssVariations: Record<string, string>[] = [];
-  try {
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: paramPrompt,
-      messages: [{ role: 'user', content: userMessage }],
-    });
-
-    let text = message.content[0].type === 'text' ? message.content[0].text : '[]';
-    text = text.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
-
-    try {
-      const parsed = JSON.parse(text);
-      cssVariations = Array.isArray(parsed) ? parsed.slice(0, numVariations) : [];
-    } catch {
-      const match = text.match(/\[[\s\S]*\]/);
-      if (match) {
-        try { cssVariations = JSON.parse(match[0]).slice(0, numVariations); } catch { /* fall through */ }
-      }
-    }
-  } catch (err) {
-    console.error('CSS variation generation failed:', err);
-  }
-
-  // 5. For each variation: clamp values to safe ranges, then apply CSS overrides
   const newVariants: CampaignVariant[] = [];
-  for (const rawOverrides of cssVariations) {
-    const overrides = clampCssVariation(rawOverrides);
-    const variantHtml = applyCssOverrides(sourceVariant.templateHtml, overrides);
-    newVariants.push({
-      id: uuidv4(),
-      templateHtml: variantHtml,
-      fieldValues: { ...sourceVariant.fieldValues },
-      approved: true,
-      outputs: [],
-    });
+
+  if (mode === 'duplicate-vary') {
+    // ── Duplicate & Vary: Keep everything, only subtle CSS tweaks ──
+    // Small random adjustments to a few variables
+    const tweakableVars = ['--headline-size', '--price-size', '--price-glow', '--bg-brightness', '--overlay-opacity'];
+
+    for (let i = 0; i < numVariants; i++) {
+      const tweaks: Record<string, string> = {};
+      // Pick 2-3 random vars to tweak slightly
+      const shuffled = tweakableVars.sort(() => Math.random() - 0.5).slice(0, 2 + Math.floor(Math.random() * 2));
+      for (const varName of shuffled) {
+        const current = parseFloat(currentVars[varName] || '0');
+        const jitter = current * (0.85 + Math.random() * 0.3); // ±15%
+        if (varName.includes('size')) {
+          tweaks[varName] = `${Math.round(jitter)}px`;
+        } else {
+          tweaks[varName] = String(Math.round(jitter * 100) / 100);
+        }
+      }
+
+      const clamped = clampCssVariation(tweaks);
+      const variantHtml = applyCssOverrides(sourceVariant.templateHtml, clamped);
+      newVariants.push({
+        id: uuidv4(),
+        templateHtml: variantHtml,
+        fieldValues: { ...sourceVariant.fieldValues },
+        approved: true,
+        outputs: [],
+      });
+    }
+  } else {
+    // ── More in this Style: Generate new similar background + subtle CSS tweaks ──
+    for (let i = 0; i < numVariants; i++) {
+      // Generate a similar background image
+      const bgUrl = sourceVariant.fieldValues.backgroundImage || '';
+      const newBgPath = await generateSimilarImage(bgUrl, campaign.studioId, req);
+
+      const newFieldValues = { ...sourceVariant.fieldValues };
+      if (newBgPath) {
+        newFieldValues.backgroundImage = `${origin}/api/assets/serve?path=${encodeURIComponent(newBgPath)}`;
+      }
+
+      // Subtle CSS tweaks (keep very close to source)
+      const subtleTweaks: Record<string, string> = {};
+      const brightness = parseFloat(currentVars['--bg-brightness'] || '0.75');
+      subtleTweaks['--bg-brightness'] = String(Math.round((brightness + (Math.random() * 0.1 - 0.05)) * 100) / 100);
+      const glow = parseFloat(currentVars['--price-glow'] || '0.5');
+      subtleTweaks['--price-glow'] = String(Math.round((glow + (Math.random() * 0.1 - 0.05)) * 100) / 100);
+
+      const clamped = clampCssVariation(subtleTweaks);
+      const variantHtml = applyCssOverrides(sourceVariant.templateHtml, clamped);
+
+      newVariants.push({
+        id: uuidv4(),
+        templateHtml: variantHtml,
+        fieldValues: newFieldValues,
+        approved: true,
+        outputs: [],
+      });
+    }
   }
 
-  // Add new variants to campaign
   campaign.variants.push(...newVariants);
   campaign.updatedAt = new Date().toISOString();
   await storage.saveCampaign(campaign);

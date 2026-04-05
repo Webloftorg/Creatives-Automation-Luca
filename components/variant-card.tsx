@@ -10,11 +10,12 @@ interface VariantCardProps {
   onToggleApproved: () => void;
   onEdit: () => void;
   onRegenerate: () => void;
+  onDuplicate?: () => void;
   feedback?: 'good' | 'bad' | null;
   onFeedback: (rating: 'good' | 'bad', comment?: string) => void;
 }
 
-export function VariantCard({ variant, onToggleApproved, onEdit, onRegenerate, feedback, onFeedback }: VariantCardProps) {
+export function VariantCard({ variant, onToggleApproved, onEdit, onRegenerate, onDuplicate, feedback, onFeedback }: VariantCardProps) {
   const [showComment, setShowComment] = useState<'good' | 'bad' | null>(null);
   const [comment, setComment] = useState('');
   const [saved, setSaved] = useState(false);
@@ -94,6 +95,13 @@ export function VariantCard({ variant, onToggleApproved, onEdit, onRegenerate, f
             title="Bearbeiten">
             ✏️
           </button>
+          {onDuplicate && (
+            <button onClick={onDuplicate}
+              className="variant-action w-7 h-7 rounded-md text-xs flex items-center justify-center"
+              title="Duplizieren & leicht variieren">
+              ⧉
+            </button>
+          )}
           <button onClick={onToggleApproved}
             className={`variant-action w-7 h-7 rounded-md text-xs flex items-center justify-center ${
               !variant.approved ? '!bg-[#22c55e] !text-white' : ''

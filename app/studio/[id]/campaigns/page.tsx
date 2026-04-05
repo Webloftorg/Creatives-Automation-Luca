@@ -224,8 +224,8 @@ export default function CampaignsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           variantId: regenerateVariant.id,
-          prompt: regeneratePrompt,
-          count: 3,
+          count: 2,
+          mode: 'vary-style',
         }),
       });
       if (res.ok) {
@@ -238,6 +238,27 @@ export default function CampaignsPage() {
       setRegenerating(false);
       setRegenerateVariant(null);
       setRegeneratePrompt('');
+    }
+  };
+
+  const handleDuplicate = async (variantId: string) => {
+    if (!activeCampaign) return;
+    try {
+      const res = await fetch(`/api/campaigns/${activeCampaign.id}/regenerate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          variantId,
+          count: 1,
+          mode: 'duplicate-vary',
+        }),
+      });
+      if (res.ok) {
+        const { campaign } = await res.json();
+        setActiveCampaign(campaign);
+      }
+    } catch (err) {
+      console.error('Duplicate failed:', err);
     }
   };
 
@@ -329,6 +350,7 @@ export default function CampaignsPage() {
               const v = activeCampaign.variants.find(v => v.id === id);
               if (v) { setRegenerateVariant(v); setRegeneratePrompt(''); }
             }}
+            onDuplicate={handleDuplicate}
             onRender={handleRender}
             rendering={rendering}
             onFeedback={handleFeedback}

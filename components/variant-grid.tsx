@@ -11,6 +11,7 @@ interface VariantGridProps {
   onToggleApproved: (variantId: string) => void;
   onEdit: (variantId: string) => void;
   onRegenerate: (variantId: string) => void;
+  onDuplicate: (variantId: string) => void;
   onRender: () => void;
   rendering: boolean;
   onFeedback: (variantId: string, rating: 'good' | 'bad', comment?: string) => void;
@@ -48,7 +49,7 @@ function applyCssVarToHtml(html: string, key: string, value: string): string {
   return html;
 }
 
-export function VariantGrid({ variants, formats, onToggleApproved, onEdit, onRegenerate, onRender, rendering, onFeedback, feedbackMap, onUpdateAllVariants }: VariantGridProps) {
+export function VariantGrid({ variants, formats, onToggleApproved, onEdit, onRegenerate, onDuplicate, onRender, rendering, onFeedback, feedbackMap, onUpdateAllVariants }: VariantGridProps) {
   const approvedCount = variants.filter(v => v.approved).length;
   const totalPngs = approvedCount * formats.length;
   const [showControls, setShowControls] = useState(false);
@@ -145,6 +146,7 @@ export function VariantGrid({ variants, formats, onToggleApproved, onEdit, onReg
               onToggleApproved={() => onToggleApproved(v.id)}
               onEdit={() => onEdit(v.id)}
               onRegenerate={() => onRegenerate(v.id)}
+              onDuplicate={() => onDuplicate(v.id)}
               feedback={feedbackMap[v.id] || null}
               onFeedback={(rating, comment) => onFeedback(v.id, rating, comment)}
             />
