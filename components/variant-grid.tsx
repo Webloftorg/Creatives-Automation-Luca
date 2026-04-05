@@ -140,7 +140,7 @@ export function VariantGrid({ variants, formats, onToggleApproved, onEdit, onReg
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {variants.map(v => (
             <VariantCard
-              key={v.id}
+              key={v.id + '-' + v.templateHtml.length}
               variant={v}
               onToggleApproved={() => onToggleApproved(v.id)}
               onEdit={() => onEdit(v.id)}

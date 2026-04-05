@@ -326,33 +326,76 @@ export function CreativeEditorModal({
                     </button>
                   </div>
                   <div className="space-y-3">
-                    {textFields.map(field => (
-                      <div key={field.key} className="group">
-                        <div className="flex justify-between items-center mb-1">
+                    {textFields.map(field => {
+                      // Headline gets a line-by-line editor with hyphen breaks
+                      if (field.key === 'headline') {
+                        const lines = (field.value || '').split('\n');
+                        return (
+                          <div key={field.key} className="bg-white/[0.02] border border-white/10 rounded-lg p-3">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-[#9ca3af] text-xs uppercase tracking-wider">{field.label}</span>
+                              <span className="text-[#4b5563] text-[10px]">{lines.length} {lines.length === 1 ? 'Zeile' : 'Zeilen'}</span>
+                            </div>
+                            <div className="space-y-1">
+                              {lines.map((line, lineIdx) => (
+                                <div key={lineIdx} className="flex items-center gap-1">
+                                  {lineIdx > 0 && <span className="text-[#00D4FF] text-[10px] font-mono w-3 flex-shrink-0">-</span>}
+                                  {lineIdx === 0 && <span className="w-3 flex-shrink-0" />}
+                                  <input
+                                    value={line}
+                                    onChange={e => {
+                                      const newLines = [...lines];
+                                      newLines[lineIdx] = e.target.value;
+                                      updateField('headline', newLines.join('\n'));
+                                    }}
+                                    className="flex-1 bg-transparent text-white text-sm font-bold outline-none uppercase"
+                                    placeholder={lineIdx === 0 ? 'Erste Zeile' : 'Naechste Zeile'}
+                                  />
+                                  {lines.length > 1 && (
+                                    <button onClick={() => {
+                                      const newLines = lines.filter((_, i) => i !== lineIdx);
+                                      updateField('headline', newLines.join('\n'));
+                                    }} className="text-[#4b5563] hover:text-red-400 text-[10px] flex-shrink-0">×</button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                            <button onClick={() => updateField('headline', field.value + '\n')}
+                              className="text-[#00D4FF] text-[10px] hover:text-[#00b4d8] font-semibold mt-2">
+                              + Zeile (Umbruch mit Bindestrich)
+                            </button>
+                          </div>
+                        );
+                      }
+                      // All other fields: simple input
+                      return (
+                        <div key={field.key} className="group">
+                          <div className="flex justify-between items-center mb-1">
+                            <input
+                              value={field.label}
+                              onChange={e => renameField(field.key, e.target.value)}
+                              className="text-[#9ca3af] text-xs uppercase tracking-wider bg-transparent border-none outline-none w-full cursor-text hover:text-white focus:text-white"
+                            />
+                            <button
+                              onClick={() => removeField(field.key)}
+                              className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-xs transition-opacity ml-2 flex-shrink-0"
+                              title="Feld entfernen"
+                            >
+                              ✕
+                            </button>
+                          </div>
                           <input
-                            value={field.label}
-                            onChange={e => renameField(field.key, e.target.value)}
-                            className="text-[#9ca3af] text-xs uppercase tracking-wider bg-transparent border-none outline-none w-full cursor-text hover:text-white focus:text-white"
+                            value={field.value}
+                            onChange={e => updateField(field.key, e.target.value)}
+                            className={`w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#00D4FF]/50 ${
+                              field.key === 'price' ? 'text-[#00D4FF] font-bold' :
+                              field.key === 'originalPrice' ? 'text-[#9ca3af]' : 'text-white'
+                            }`}
+                            placeholder={field.label}
                           />
-                          <button
-                            onClick={() => removeField(field.key)}
-                            className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 text-xs transition-opacity ml-2 flex-shrink-0"
-                            title="Feld entfernen"
-                          >
-                            ✕
-                          </button>
                         </div>
-                        <input
-                          value={field.value}
-                          onChange={e => updateField(field.key, e.target.value)}
-                          className={`w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#00D4FF]/50 ${
-                            field.key === 'price' ? 'text-[#00D4FF] font-bold' :
-                            field.key === 'originalPrice' ? 'text-[#9ca3af]' : 'text-white'
-                          }`}
-                          placeholder={field.label}
-                        />
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
