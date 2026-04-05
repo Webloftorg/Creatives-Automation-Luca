@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          instances: [{ prompt }],
+          instances: [{ prompt: `${prompt}. ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS, NO LOGOS, NO WATERMARKS in the image.` }],
           parameters: { sampleCount: 1, aspectRatio: '1:1' },
         }),
       },

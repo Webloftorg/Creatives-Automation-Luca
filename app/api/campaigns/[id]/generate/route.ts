@@ -286,9 +286,9 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       for (let i = 0; i < count; i++) {
         let combinedPrompt: string;
         if (hasPerson) {
-          combinedPrompt = `Photorealistic real photography: ${personCtx}, prominent in foreground, well-lit and clearly visible. Background: ${bgCtx}${brandPromptSuffix}. Professional advertising campaign photo, studio quality lighting, sharp focus on person. Variation ${i + 1}. NOT illustration, NOT cartoon, NOT 3D render.`;
+          combinedPrompt = `Photorealistic real photography: ${personCtx}, prominent in foreground, well-lit and clearly visible. Background: ${bgCtx}${brandPromptSuffix}. Professional advertising campaign photo, studio quality lighting, sharp focus on person. Variation ${i + 1}. NOT illustration, NOT cartoon, NOT 3D render. ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS, NO LOGOS, NO WATERMARKS in the image.`;
         } else {
-          combinedPrompt = `Photorealistic real photography: ${bgCtx}${brandPromptSuffix}. Professional advertising photography, atmospheric lighting, high quality. NO people in the image. Variation ${i + 1}. NOT illustration, NOT cartoon, NOT 3D render.`;
+          combinedPrompt = `Photorealistic real photography: ${bgCtx}${brandPromptSuffix}. Professional advertising photography, atmospheric lighting, high quality. NO people in the image. Variation ${i + 1}. NOT illustration, NOT cartoon, NOT 3D render. ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS, NO LOGOS, NO WATERMARKS in the image.`;
         }
         const path = await generateImage(combinedPrompt, campaign.studioId, 'background');
         if (path) bgPaths.push(path);
@@ -301,7 +301,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
         for (let i = 0; i < count; i++) {
           const basePrompt = campaign.personPrompt || 'Fitness trainer, athletic build, smiling, wearing gym clothes, professional studio lighting, solid pure white background, clean sharp edges, full body studio portrait photo';
           const path = await generateImage(
-            `${basePrompt}${brandPromptSuffix} Variation ${i + 1}, different person, different look.`,
+            `${basePrompt}${brandPromptSuffix} Variation ${i + 1}, different person, different look. ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS, NO LOGOS, NO WATERMARKS in the image.`,
             campaign.studioId,
             'person',
           );
@@ -315,7 +315,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
         for (let i = 0; i < count; i++) {
           const basePrompt = campaign.backgroundPrompt || 'Modern gym interior, fitness equipment, warm lighting, professional photography';
           const path = await generateImage(
-            `${basePrompt}${brandPromptSuffix} Variation ${i + 1}, different angle and lighting.`,
+            `${basePrompt}${brandPromptSuffix} Variation ${i + 1}, different angle and lighting. ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS, NO LOGOS, NO WATERMARKS in the image.`,
             campaign.studioId,
             'background',
           );
