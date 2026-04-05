@@ -6,7 +6,7 @@ import Link from 'next/link';
 export function StudioCard({ studio }: { studio: Studio }) {
   if (!studio?.name) return null;
   return (
-    <Link href={`/studio/${studio.id}/creatives`}>
+    <Link href={`/studio/${studio.id}/campaigns`}>
       <div className="glass-card rounded-xl p-5 cursor-pointer group transition-all duration-300 hover:-translate-y-0.5">
         <div className="flex items-center gap-3 mb-3">
           <div

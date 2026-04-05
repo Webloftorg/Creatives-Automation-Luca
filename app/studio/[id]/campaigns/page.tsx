@@ -181,11 +181,34 @@ export default function CampaignsPage() {
     setRendering(true);
     setView('rendering');
 
-    const res = await fetch(`/api/campaigns/${activeCampaign.id}/render`, { method: 'POST' });
-    const updated = await res.json();
+    try {
+      // Fire the render request
+      const res = await fetch(`/api/campaigns/${activeCampaign.id}/render`, { method: 'POST' });
 
-    if (res.ok) {
-      setActiveCampaign(updated);
+      if (res.ok) {
+        try {
+          const updated = await res.json();
+          setActiveCampaign(updated);
+        } catch {
+          // JSON parse failed - poll for status instead
+        }
+      }
+
+      // Poll for updates until done
+      let attempts = 0;
+      const maxAttempts = 60;
+      while (attempts < maxAttempts) {
+        await new Promise(r => setTimeout(r, 2000));
+        const pollRes = await fetch(`/api/campaigns/${activeCampaign.id}`);
+        if (pollRes.ok) {
+          const latest = await pollRes.json();
+          setActiveCampaign(latest);
+          if (latest.status === 'done' || latest.status === 'reviewing') break;
+        }
+        attempts++;
+      }
+    } catch (err) {
+      console.error('Render failed:', err);
     }
 
     setRendering(false);

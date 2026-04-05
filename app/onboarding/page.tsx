@@ -67,7 +67,7 @@ export default function OnboardingPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(studio),
     });
-    router.push(`/studio/${studioId}/creatives`);
+    router.push(`/studio/${studioId}/campaigns`);
   };
 
   return (
