@@ -257,11 +257,12 @@ export default function CampaignsPage() {
       }
     }
 
-    // Fetch all blobs in parallel
+    // Fetch all blobs via proxy to avoid CORS issues
     const results = await Promise.all(
       doneOutputs.map(async (item) => {
         try {
-          const res = await fetch(item.path);
+          const proxyUrl = `/api/download?url=${encodeURIComponent(item.path)}&filename=${encodeURIComponent(`${item.headline}-${item.format}.jpg`)}`;
+          const res = await fetch(proxyUrl);
           if (!res.ok) throw new Error('Fetch failed');
           return { ...item, blob: await res.blob() };
         } catch {

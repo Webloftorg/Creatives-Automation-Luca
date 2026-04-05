@@ -9,27 +9,16 @@ interface RenderProgressProps {
   onDownloadAll: () => void;
 }
 
-function triggerDownload(url: string, filename: string) {
+function downloadFile(outputPath: string, format: string, headline: string) {
+  const filename = `${headline || 'creative'}-${format}.jpg`;
+  // Use our proxy endpoint to ensure proper Content-Disposition header
+  const proxyUrl = `/api/download?url=${encodeURIComponent(outputPath)}&filename=${encodeURIComponent(filename)}`;
   const a = document.createElement('a');
-  a.href = url;
+  a.href = proxyUrl;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-}
-
-async function downloadSingleFile(outputPath: string, format: string, headline: string) {
-  try {
-    const res = await fetch(outputPath);
-    if (!res.ok) throw new Error('Fetch failed');
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    triggerDownload(url, `${headline || 'creative'}-${format}.jpg`);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  } catch {
-    // Fallback: direct link
-    triggerDownload(outputPath, `${headline || 'creative'}-${format}.jpg`);
-  }
 }
 
 export function RenderProgress({ variants, formats, onDownloadAll }: RenderProgressProps) {
@@ -75,7 +64,7 @@ export function RenderProgress({ variants, formats, onDownloadAll }: RenderProgr
                     <span className="text-[#6b7280] text-xs">{output.format}</span>
                     {output.status === 'done' && output.outputPath ? (
                       <button
-                        onClick={() => downloadSingleFile(output.outputPath!, output.format, variant.fieldValues.headline || 'creative')}
+                        onClick={() => downloadFile(output.outputPath!, output.format, variant.fieldValues.headline || 'creative')}
                         className="text-[#22c55e] text-xs hover:underline cursor-pointer bg-transparent border-none">
                         ✓ Download
                       </button>
