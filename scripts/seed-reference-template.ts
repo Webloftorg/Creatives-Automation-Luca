@@ -15,13 +15,6 @@ const TEMPLATES = [
     htmlFile: 'price-offer-reference.html',
   },
   {
-    id: 'split-bold',
-    name: 'Split Bold (wellfit-Stil)',
-    description:
-      'Fetter Split-Screen-Look mit kräftigen Farben und starkem Kontrast.',
-    htmlFile: 'split-bold.html',
-  },
-  {
     id: 'minimal-light',
     name: 'Minimal Light (JONNY M.-Stil)',
     description:

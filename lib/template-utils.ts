@@ -313,6 +313,7 @@ const SIZE_BOUNDS: Record<string, [number, number]> = {
 /**
  * Clamps AI-generated CSS variation values to safe ranges.
  * Prevents elements from going off-canvas or becoming too small/large.
+ * Enforces minimum spacing between headline, price-block, and location.
  */
 export function clampCssVariation(overrides: Record<string, string>): Record<string, string> {
   const clamped: Record<string, string> = {};
@@ -329,6 +330,27 @@ export function clampCssVariation(overrides: Record<string, string>): Record<str
       clamped[key] = value;
     }
   }
+
+  // Enforce minimum vertical spacing between elements (at least 15% apart)
+  const MIN_GAP = 15;
+  const locationY = parseFloat(clamped['--location-y'] || '') || -1;
+  let headlineY = parseFloat(clamped['--headline-y'] || '') || -1;
+  let priceY = parseFloat(clamped['--price-block-y'] || '') || -1;
+
+  if (headlineY >= 0 && priceY >= 0) {
+    // Headline must be above price with enough gap
+    if (priceY - headlineY < MIN_GAP) {
+      priceY = headlineY + MIN_GAP;
+      if (priceY > 85) { priceY = 85; headlineY = priceY - MIN_GAP; }
+      clamped['--headline-y'] = `${Math.round(headlineY)}%`;
+      clamped['--price-block-y'] = `${Math.round(priceY)}%`;
+    }
+  }
+
+  if (locationY >= 0 && headlineY >= 0 && headlineY - locationY < 8 && headlineY - locationY >= 0) {
+    clamped['--location-y'] = `${Math.max(3, Math.round(headlineY - 10))}%`;
+  }
+
   return clamped;
 }
 

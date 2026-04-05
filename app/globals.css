@@ -131,3 +131,16 @@ body {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* ── Variant Action Buttons ── */
+.variant-action {
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  transition: all 0.2s var(--ease);
+}
+.variant-action:hover {
+  background: #00D4FF !important;
+  color: #000 !important;
+  box-shadow: 0 0 12px rgba(0,212,255,0.4);
+}

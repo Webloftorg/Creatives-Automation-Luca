@@ -67,34 +67,32 @@ export function VariantCard({ variant, onToggleApproved, onEdit, onRegenerate, f
         )}
         <div className="absolute top-2 right-2 flex gap-1">
           <button onClick={handleThumbsUp}
-            className={`w-7 h-7 rounded-md text-xs flex items-center justify-center transition-all ${
-              feedback === 'good' ? 'bg-[#22c55e] text-white' : 'bg-black/70 backdrop-blur-sm text-white hover:bg-[#00D4FF] hover:text-black hover:shadow-[0_0_12px_rgba(0,212,255,0.4)]'
+            className={`variant-action w-7 h-7 rounded-md text-xs flex items-center justify-center ${
+              feedback === 'good' ? '!bg-[#22c55e] !text-white' : ''
             }`}
             title="Gut - wird fuer zukuenftige Kampagnen gelernt">
             ↑
           </button>
           <button onClick={handleThumbsDown}
-            className={`w-7 h-7 rounded-md text-xs flex items-center justify-center transition-all ${
-              feedback === 'bad' ? 'bg-red-600 text-white' : 'bg-black/70 backdrop-blur-sm text-white hover:bg-[#00D4FF] hover:text-black hover:shadow-[0_0_12px_rgba(0,212,255,0.4)]'
+            className={`variant-action w-7 h-7 rounded-md text-xs flex items-center justify-center ${
+              feedback === 'bad' ? '!bg-red-600 !text-white' : ''
             }`}
             title="Schlecht - Feedback geben">
             ↓
           </button>
           <button onClick={onRegenerate}
-            className="w-7 h-7 bg-black/70 backdrop-blur-sm rounded-md text-white text-xs flex items-center justify-center hover:bg-[#00D4FF] hover:text-black hover:shadow-[0_0_12px_rgba(0,212,255,0.4)] transition-all"
+            className="variant-action w-7 h-7 rounded-md text-xs flex items-center justify-center"
             title="Mehr in diesem Stil">
             +
           </button>
           <button onClick={onEdit}
-            className="w-7 h-7 bg-black/70 backdrop-blur-sm rounded-md text-white text-xs flex items-center justify-center hover:bg-[#00D4FF] hover:text-black hover:shadow-[0_0_12px_rgba(0,212,255,0.4)] transition-all"
+            className="variant-action w-7 h-7 rounded-md text-xs flex items-center justify-center"
             title="Bearbeiten">
             ✏️
           </button>
           <button onClick={onToggleApproved}
-            className={`w-7 h-7 rounded-md text-xs flex items-center justify-center transition-all ${
-              variant.approved
-                ? 'bg-black/70 backdrop-blur-sm text-white hover:bg-[#00D4FF] hover:text-black hover:shadow-[0_0_12px_rgba(0,212,255,0.4)]'
-                : 'bg-[#22c55e] text-white'
+            className={`variant-action w-7 h-7 rounded-md text-xs flex items-center justify-center ${
+              !variant.approved ? '!bg-[#22c55e] !text-white' : ''
             }`}
             title={variant.approved ? 'Entfernen' : 'Wiederherstellen'}>
             {variant.approved ? '×' : '↩'}
