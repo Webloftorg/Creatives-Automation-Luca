@@ -3,11 +3,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStorage } from '@/lib/storage';
 import { replacePlaceholders } from '@/lib/template-utils';
 import { FORMAT_DIMENSIONS } from '@/lib/formats';
-import fs from 'fs/promises';
-import path from 'path';
-import type { Campaign, CreativeFormat } from '@/lib/types';
+import type { CreativeFormat } from '@/lib/types';
 
 const RENDER_SERVER = process.env.RENDER_SERVER_URL || 'http://localhost:3001';
+
+// Vercel Serverless max duration (seconds)
+export const maxDuration = 60;
+
+function isSupabaseMode() {
+  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
 
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,9 +26,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   campaign.updatedAt = new Date().toISOString();
   await storage.saveCampaign(campaign);
 
-  const outputDir = path.join(process.cwd(), 'public', 'output', 'campaigns', id);
-  await fs.mkdir(outputDir, { recursive: true });
-
+  const origin = _req.nextUrl.origin;
   const approvedVariants = campaign.variants.filter(v => v.approved);
 
   // Initialize outputs for each variant
@@ -39,6 +42,15 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     }
   }
 
+  // Prepare filesystem or Supabase storage for outputs
+  let outputDir = '';
+  if (!isSupabaseMode()) {
+    const fs = (await import('fs/promises')).default;
+    const path = (await import('path')).default;
+    outputDir = path.join(process.cwd(), 'public', 'output', 'campaigns', id);
+    await fs.mkdir(outputDir, { recursive: true });
+  }
+
   // Process with concurrency limit of 3
   const CONCURRENCY = 3;
   for (let i = 0; i < renderTasks.length; i += CONCURRENCY) {
@@ -49,8 +61,8 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       const values = { ...variant.fieldValues, width: String(dims.width), height: String(dims.height) };
       const html = replacePlaceholders(variant.templateHtml, values);
 
-      // Inject <base> for asset URLs
-      const baseTag = `<base href="http://localhost:3000/">`;
+      // Inject <base> so the render server can resolve asset URLs
+      const baseTag = `<base href="${origin}/">`;
       const finalHtml = html.includes('<head>')
         ? html.replace('<head>', `<head>${baseTag}`)
         : `${baseTag}${html}`;
@@ -66,12 +78,30 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
         const buffer = Buffer.from(await res.arrayBuffer());
         const filename = `variant-${variant.id}-${task.format}.jpg`;
-        await fs.writeFile(path.join(outputDir, filename), buffer);
+
+        let outputPath: string;
+        if (isSupabaseMode()) {
+          // Upload to Supabase Storage
+          const { supabaseAdmin } = await import('@/lib/supabase');
+          const storagePath = `renders/${id}/${filename}`;
+          await supabaseAdmin.storage.from('assets').upload(storagePath, buffer, {
+            contentType: 'image/jpeg',
+            upsert: true,
+          });
+          const { data } = supabaseAdmin.storage.from('assets').getPublicUrl(storagePath);
+          outputPath = data.publicUrl;
+        } else {
+          // Write to local filesystem
+          const fs = (await import('fs/promises')).default;
+          const path = (await import('path')).default;
+          await fs.writeFile(path.join(outputDir, filename), buffer);
+          outputPath = `/output/campaigns/${id}/${filename}`;
+        }
 
         variant.outputs[task.formatIdx] = {
           format: task.format,
           status: 'done',
-          outputPath: `/output/campaigns/${id}/${filename}`,
+          outputPath,
         };
       } catch (err) {
         variant.outputs[task.formatIdx] = {

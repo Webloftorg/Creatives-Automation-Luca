@@ -8,6 +8,8 @@ import { normalizeLayoutHtml, extractCssVariables, clampCssVariation } from '@/l
 import { v4 as uuidv4 } from 'uuid';
 import type { Campaign, CampaignVariant } from '@/lib/types';
 
+export const maxDuration = 60;
+
 const anthropic = new Anthropic();
 
 function hexToLuminance(hex: string): number {

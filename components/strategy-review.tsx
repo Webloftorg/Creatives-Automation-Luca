@@ -34,7 +34,7 @@ export function StrategyReview({ strategy, onChange, onApply, onReanalyze, onSki
       </div>
 
       {/* Template Selection */}
-      <div className="glass-card rounded-xl p-4 space-y-3">
+      <div className="glass-card rounded-xl p-4 space-y-3 overflow-hidden">
         <div>
           <label className="text-[#9ca3af] text-xs uppercase tracking-wider mb-1 block">Template</label>
           <select
@@ -52,21 +52,21 @@ export function StrategyReview({ strategy, onChange, onApply, onReanalyze, onSki
         {/* Colors */}
         <div>
           <label className="text-[#9ca3af] text-xs uppercase tracking-wider mb-2 block">Farben</label>
-          <div className="flex gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {([
               ['primaryColor', 'Primaer'] as const,
               ['secondaryColor', 'Sekundaer'] as const,
               ['accentColor', 'Akzent'] as const,
             ]).map(([key, label]) => (
-              <div key={key} className="flex-1">
+              <div key={key} className="min-w-0">
                 <label className="text-[#6b7280] text-[10px] uppercase">{label}</label>
                 <div className="flex items-center gap-2 mt-1">
                   <input type="color" value={strategy[key]}
                     onChange={e => update({ [key]: e.target.value })}
-                    className="w-8 h-8 rounded cursor-pointer border border-white/10 bg-transparent" />
+                    className="w-8 h-8 rounded cursor-pointer border border-white/10 bg-transparent flex-shrink-0" />
                   <input value={strategy[key]}
                     onChange={e => update({ [key]: e.target.value })}
-                    className="flex-1 bg-[#0e0e15] border border-white/10 rounded px-2 py-1.5 text-white text-xs outline-none font-mono focus:border-[#00D4FF]/50" />
+                    className="min-w-0 w-full bg-[#0e0e15] border border-white/10 rounded px-2 py-1.5 text-white text-xs outline-none font-mono focus:border-[#00D4FF]/50" />
                 </div>
               </div>
             ))}
