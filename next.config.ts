@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['@imgly/background-removal-node', 'sharp'],
+  // Required for Next.js 16 - silence Turbopack/webpack coexistence error
+  turbopack: {},
   images: {
     remotePatterns: [
       {
