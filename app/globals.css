@@ -132,6 +132,15 @@ body {
   outline-offset: 2px;
 }
 
+/* ── Sidebar Expand ── */
+.sidebar-nav {
+  width: 52px;
+  transition: width 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.sidebar-nav:hover {
+  width: 200px;
+}
+
 /* ── Variant Action Buttons ── */
 .variant-action {
   background: rgba(0,0,0,0.7);

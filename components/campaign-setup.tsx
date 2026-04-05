@@ -332,7 +332,7 @@ export function CampaignSetup({ studioId, onGenerate, loading }: CampaignSetupPr
                 generating={loading}
               />
 
-              {/* Headlines + Preis direkt hier damit alles in einem Schritt geht */}
+              {/* Headlines + Preis + Generate Button */}
               <div className="bg-[#050507] border border-white/[0.06] rounded-xl p-4 space-y-3">
                 <label className="text-[#9ca3af] text-xs uppercase tracking-wider block">Headlines & Preis</label>
                 <div className="space-y-2">
@@ -383,6 +383,23 @@ export function CampaignSetup({ studioId, onGenerate, loading }: CampaignSetupPr
                     ))}
                   </div>
                 </div>
+              </div>
+
+              {/* Generate button - always at bottom */}
+              <div className="space-y-2">
+                {loading && (
+                  <div className="glass-card rounded-lg p-3">
+                    <p className="text-[#00D4FF] text-xs font-semibold mb-2">Kampagne wird generiert...</p>
+                    <div className="w-full h-1.5 bg-white/[0.045] rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-[#00D4FF] to-[#0090cc] rounded-full animate-pulse shadow-[0_0_10px_rgba(0,212,255,0.3)]" style={{ width: '60%' }} />
+                    </div>
+                    <p className="text-[#6b7280] text-[10px] mt-1.5">Bilder werden generiert, Layouts berechnet...</p>
+                  </div>
+                )}
+                <button onClick={applyStrategyAndGenerate} disabled={loading}
+                  className="w-full bg-gradient-to-r from-[#00D4FF] to-[#0090cc] hover:from-[#00b4d8] hover:to-[#0080b5] disabled:opacity-50 text-black font-bold py-3.5 rounded-full text-sm transition-all shadow-[0_8px_32px_rgba(0,212,255,0.25)] btn-primary">
+                  {loading ? 'Generiere Kampagne...' : 'Kampagne generieren'}
+                </button>
               </div>
             </>
           )}

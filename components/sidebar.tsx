@@ -16,9 +16,8 @@ export function Sidebar({ studioId, studioName }: { studioId: string; studioName
 
   return (
     <div
-      className="w-[52px] hover:w-[200px] flex flex-col py-4 overflow-hidden group flex-shrink-0"
+      className="sidebar-nav flex flex-col py-4 overflow-hidden group flex-shrink-0"
       style={{
-        transition: 'width 0.25s cubic-bezier(0.23, 1, 0.32, 1)',
         background: 'rgba(14,14,21, 0.85)',
         borderRight: '1px solid rgba(255,255,255,0.06)',
       }}
