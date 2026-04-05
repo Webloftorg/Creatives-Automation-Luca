@@ -247,8 +247,8 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     console.log(`Injecting feedback from ${studioFeedback.length} ratings into prompts`);
   }
 
-  let copyPrompt = await storage.getSystemPrompt(campaign.studioId, 'copy-generation');
-  if (!copyPrompt) copyPrompt = DEFAULT_PROMPTS['copy-generation'];
+  const { getEvolvedPrompt } = await import('@/lib/evolved-prompts');
+  const copyPrompt = await getEvolvedPrompt(campaign.studioId, 'copy-generation');
 
   try {
     // 1. Get the base template HTML
@@ -389,8 +389,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
     // 6. Generate CSS parameter variations for layout diversity
     const templateCssVars = extractCssVariables(templateHtml);
-    let paramPrompt = await storage.getSystemPrompt(campaign.studioId, 'parameter-variation');
-    if (!paramPrompt) paramPrompt = DEFAULT_PROMPTS['parameter-variation'];
+    let paramPrompt = await getEvolvedPrompt(campaign.studioId, 'parameter-variation');
     if (feedbackContext) {
       paramPrompt += '\n\n' + feedbackContext;
     }

@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
   const storage = getStorage();
   await storage.init();
 
-  let systemPrompt = await storage.getSystemPrompt(studioId, 'copy-generation');
-  if (!systemPrompt) systemPrompt = DEFAULT_PROMPTS['copy-generation'];
+  const { getEvolvedPrompt } = await import('@/lib/evolved-prompts');
+  const systemPrompt = await getEvolvedPrompt(studioId, 'copy-generation');
 
   const studio = studioId ? await storage.getStudio(studioId) : null;
 

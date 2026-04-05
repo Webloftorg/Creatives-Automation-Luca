@@ -37,9 +37,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // 1. Extract CSS variables from source variant's template
   const currentVars = extractCssVariables(sourceVariant.templateHtml);
 
-  // 2. Load the parameter-variation prompt
-  let paramPrompt = await storage.getSystemPrompt(campaign.studioId, 'parameter-variation');
-  if (!paramPrompt) paramPrompt = DEFAULT_PROMPTS['parameter-variation'];
+  // 2. Load the parameter-variation prompt (uses evolved global prompt if available)
+  const { getEvolvedPrompt } = await import('@/lib/evolved-prompts');
+  let paramPrompt = await getEvolvedPrompt(campaign.studioId, 'parameter-variation');
 
   const numVariations = Math.min(count || 3, 5);
 
