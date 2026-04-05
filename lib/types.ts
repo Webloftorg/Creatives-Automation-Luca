@@ -148,6 +148,8 @@ export type PromptType =
 export type AssetType = 'person' | 'background' | 'logo' | 'generated';
 
 export interface StorageAdapter {
+  init(): Promise<void>;
+
   getStudio(id: string): Promise<Studio | null>;
   saveStudio(studio: Studio): Promise<void>;
   listStudios(): Promise<Studio[]>;

@@ -1,15 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
 
-const ALLOWED_BASE = path.resolve(process.cwd(), 'data', 'assets');
 const ALLOWED_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif']);
+
+function isSupabaseMode() {
+  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
 
 export async function GET(req: NextRequest) {
   const assetPath = req.nextUrl.searchParams.get('path');
   if (!assetPath) return NextResponse.json({ error: 'path required' }, { status: 400 });
 
-  // Resolve and validate path is within allowed directory
+  if (isSupabaseMode()) {
+    // Supabase Storage: redirect to public URL
+    const { supabaseAdmin } = await import('@/lib/supabase');
+    const { data } = supabaseAdmin.storage.from('assets').getPublicUrl(assetPath);
+    return NextResponse.redirect(data.publicUrl);
+  }
+
+  // Filesystem mode
+  const fs = (await import('fs/promises')).default;
+  const path = (await import('path')).default;
+
+  const ALLOWED_BASE = path.resolve(process.cwd(), 'data', 'assets');
   const resolved = path.resolve(assetPath);
   if (!resolved.startsWith(ALLOWED_BASE)) {
     return NextResponse.json({ error: 'Access denied' }, { status: 403 });

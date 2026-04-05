@@ -139,9 +139,9 @@ export default function OnboardingPage() {
                 <label className="text-[#9ca3af] text-xs uppercase tracking-wider mb-2 block">Hintergrundbilder (Gym-Fotos)</label>
                 <div className="flex gap-2 flex-wrap mb-2">
                   {backgroundPaths.map((p, i) => {
-                    const url = (p.includes('data/assets/') || p.includes('data\\assets\\'))
-                      ? `/api/assets/serve?path=${encodeURIComponent(p)}`
-                      : p;
+                    const url = p.startsWith('http') || p.startsWith('/api/')
+                      ? p
+                      : `/api/assets/serve?path=${encodeURIComponent(p)}`;
                     return (
                       <div key={i} className="w-20 h-20 bg-[#15151e] border border-white/10 rounded-lg overflow-hidden">
                         <img src={url} alt="" className="w-full h-full object-cover" />
@@ -159,9 +159,9 @@ export default function OnboardingPage() {
                 <p className="text-[#6b7280] text-xs mb-2">Transparenter Hintergrund empfohlen</p>
                 <div className="flex gap-2 flex-wrap mb-2">
                   {personPaths.map((p, i) => {
-                    const url = (p.includes('data/assets/') || p.includes('data\\assets\\'))
-                      ? `/api/assets/serve?path=${encodeURIComponent(p)}`
-                      : p;
+                    const url = p.startsWith('http') || p.startsWith('/api/')
+                      ? p
+                      : `/api/assets/serve?path=${encodeURIComponent(p)}`;
                     return (
                       <div key={i} className="w-20 h-20 bg-[#15151e] border border-white/10 rounded-lg overflow-hidden">
                         <img src={url} alt="" className="w-full h-full object-cover" />
