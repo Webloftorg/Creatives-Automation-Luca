@@ -97,7 +97,7 @@ const REQUIRED_CSS_VARS: Record<string, string> = {
   '--watermark-rotation': '-15deg',
   '--price-unit-size': '32px',
   '--footer-height': '60px',
-  '--overlay-opacity': '1',
+  '--overlay-opacity': '0.3',
   '--overlay-color': '0, 0, 0',
   '--headline-wrap': 'normal',
   '--price-glow': '0.5',
@@ -306,9 +306,9 @@ const SIZE_BOUNDS: Record<string, [number, number]> = {
   '--person-scale': [0.5, 1.1],
   '--location-size': [18, 50],
   '--watermark-opacity': [0.0, 0.1],
-  '--bg-brightness': [0.35, 1.0],
+  '--bg-brightness': [0.5, 1.0],
   '--bg-blur': [0, 8],
-  '--overlay-opacity': [0.2, 1.0],
+  '--overlay-opacity': [0.0, 0.5],
   '--price-glow': [0, 1],
 };
 

@@ -396,7 +396,8 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       paramPrompt += '\n\n' + feedbackContext;
     }
 
-    const variationCount = Math.max(3, headlines.length);
+    // Keep variation count low for consistency - 2 subtle layout tweaks max
+    const variationCount = 2;
     let cssVariations: Record<string, string>[] = [];
     try {
       cssVariations = await generateCssVariations(paramPrompt, templateCssVars, variationCount);

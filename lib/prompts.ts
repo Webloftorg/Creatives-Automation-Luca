@@ -52,8 +52,9 @@ REGELN:
 - --price-glow: Variiere zwischen "0.3" (dezent lesbar) und "0.7" (leuchtend). NICHT ueber 0.8!
 - Elemente muessen INNERHALB des Canvas bleiben (5%-95%)
 - Jede Variation muss sich DEUTLICH von den anderen unterscheiden
-- VARIIERE Bildhelligkeit: dunkel (--bg-brightness: "0.45") und hell ("0.75"-"0.85") mischen
-- VARIIERE Watermark: manche MIT (--watermark-opacity: "0.04"-"0.06"), manche OHNE ("0")
+- Bildhelligkeit: bevorzuge hell/klar (--bg-brightness: "0.65"-"0.85"). Nur 1 von 5 Variationen dunkel ("0.45").
+- Filter/Overlay: IMMER dezent! --overlay-opacity maximal "0.5", bevorzuge "0.2"-"0.35". Zu starke Filter machen Bilder matschig.
+- Watermark: meistens OHNE ("0"), maximal 1 von 5 mit dezent ("0.03"-"0.05")
 - --headline-y darf NICHT zwischen 25% und 45% liegen wenn eine Person im Bild ist
 
 Alle Positionswerte sind Prozent (z.B. "35%"), Groessen px (z.B. "100px"), --person-scale Dezimal (z.B. "0.85"), --price-glow Dezimal 0-1.
