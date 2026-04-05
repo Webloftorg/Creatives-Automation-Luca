@@ -11,11 +11,11 @@ const SLIDER_CONFIG: Record<string, { min: number; max: number; step: number; un
   '--bg-blur':        { min: 0, max: 20, step: 1, unit: 'px', label: 'Hintergrund Blur', group: 'Hintergrund', section: 'background' },
   '--bg-brightness':  { min: 0.1, max: 1, step: 0.05, unit: '', label: 'Hintergrund Helligkeit', group: 'Hintergrund', section: 'background' },
   // Filter
-  '--overlay-opacity': { min: 0, max: 1, step: 0.05, unit: '', label: 'Filterstaerke', group: 'Filter', section: 'background' },
+  '--overlay-opacity': { min: 0, max: 1, step: 0.01, unit: '', label: 'Filterstaerke (0 = aus)', group: 'Filter', section: 'background' },
   // Typografie
   '--headline-size':  { min: 24, max: 140, step: 2, unit: 'px', label: 'Headline Größe', group: 'Typografie', section: 'headline' },
   '--price-size':     { min: 32, max: 180, step: 2, unit: 'px', label: 'Preis Größe', group: 'Typografie', section: 'price-block' },
-  '--price-glow':     { min: 0, max: 1, step: 0.05, unit: '', label: 'Preis Glow-Stärke', group: 'Typografie', section: 'price-block' },
+  '--price-glow':     { min: 0, max: 2, step: 0.05, unit: '', label: 'Preis Neon-Glow', group: 'Typografie', section: 'price-block' },
   '--location-size':  { min: 14, max: 56, step: 1, unit: 'px', label: 'Standort Größe', group: 'Typografie', section: 'location' },
   '--strikethrough-size': { min: 14, max: 56, step: 1, unit: 'px', label: 'Streichpreis Größe', group: 'Typografie', section: 'price-block' },
   // Person

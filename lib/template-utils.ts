@@ -264,17 +264,19 @@ function ensureCreativeContainer(html: string): string {
 }
 
 function ensureNeonGlow(html: string): string {
-  // Controllable glow via --price-glow (0 = no glow, 1 = full neon)
+  // Controllable glow via --price-glow (0 = clean text, 1 = extreme neon)
+  // Multipliers are large so the slider has real visible impact
   const neonStyle = `
 <style>
   .price {
     color: var(--accent-color) !important;
     text-shadow:
-      0 0 calc(10px * var(--price-glow, 0.5)) var(--accent-color),
-      0 0 calc(30px * var(--price-glow, 0.5)) var(--accent-color),
+      0 0 calc(20px * var(--price-glow, 0.5)) var(--accent-color),
       0 0 calc(60px * var(--price-glow, 0.5)) var(--accent-color),
+      0 0 calc(120px * var(--price-glow, 0.5)) var(--accent-color),
+      0 0 calc(200px * var(--price-glow, 0.5)) var(--accent-color),
       0 2px 4px rgba(0,0,0,0.8) !important;
-    filter: brightness(calc(1 + 0.3 * var(--price-glow, 0.5))) !important;
+    filter: brightness(calc(1 + 0.6 * var(--price-glow, 0.5))) !important;
   }
 </style>`;
 
@@ -308,8 +310,8 @@ const SIZE_BOUNDS: Record<string, [number, number]> = {
   '--watermark-opacity': [0.0, 0.1],
   '--bg-brightness': [0.5, 1.0],
   '--bg-blur': [0, 8],
-  '--overlay-opacity': [0.0, 0.5],
-  '--price-glow': [0, 1],
+  '--overlay-opacity': [0, 1],
+  '--price-glow': [0, 2],
 };
 
 /**
