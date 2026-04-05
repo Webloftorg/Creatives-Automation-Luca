@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
-    "@img/sharp-win32-x64": "^0.34.5",
     "@imgly/background-removal-node": "^1.4.5",
     "@supabase/supabase-js": "^2.101.1",
     "concurrently": "^9.2.1",
