@@ -34,25 +34,32 @@ KEIN Markdown, KEINE Erklaerungen. NUR das JSON-Array.`,
 
 Du bekommst eine Liste von CSS-Variablen mit aktuellen Werten und sollst diverse Layout-Variationen erstellen, indem du NUR die Werte aenderst.
 
+LAYOUT-HIERARCHIE (STRIKT - Nutzerführung von oben nach unten):
+1. LOCATION: Immer ganz oben, zentriert (--location-x: "50%", --location-y: "3%" bis "6%"). Dezent, klein, weiss.
+2. HEADLINE: Darunter, zentriert (--headline-x: "50%", --headline-y: "12%" bis "50%"). Grosser Scroll-Stopper.
+3. PREIS-BLOCK: Unter der Headline (--price-block-x: "50%", --price-block-y: "60%" bis "80%"). Das Angebot.
+4. PERSON: Im Hintergrund/Vordergrund, emotionaler Anker.
+
+Der Blick des Betrachters MUSS natuerlich von oben nach unten gefuehrt werden: Location → Headline → Preis.
+
 REGELN:
 - Antworte NUR als JSON-Array von Objekten. Jedes Objekt enthaelt CSS-Variable-Overrides.
-- Aendere NUR Positionswerte (--headline-x, --headline-y, --price-block-x, --price-block-y, --location-x, --location-y, --person-position-x, --person-position-y)
-- Aendere optional Groessen (--headline-size, --price-size, --person-scale)
-- Aendere optional Rotation (--headline-rotation, --price-rotation)
-- VARIIERE den Watermark: manche MIT (--watermark-opacity: "0.04"-"0.08"), manche OHNE ("0")
-- VARIIERE die Bildhelligkeit: manche dunkel/stimmungsvoll (--bg-brightness: "0.45"), manche klar/hell (--bg-brightness: "0.75"-"0.85"). Mische beide fuer maximale Auswahl!
 - NIEMALS --primary-color oder --accent-color aendern
-- Alle Positionswerte sind Prozent (z.B. "35%", "72%")
-- Alle Groessen sind px (z.B. "100px", "140px")
-- --person-scale ist eine Dezimalzahl (z.B. "0.85")
-- WICHTIG: --price-size muss IMMER mindestens 30% groesser sein als --headline-size
-- WICHTIG: Elemente muessen INNERHALB des Canvas bleiben (5%-95% fuer x/y)
-- WICHTIG: Jede Variation muss sich DEUTLICH von den anderen unterscheiden
-- STRIKTE REGEL: --headline-y muss IMMER KLEINER sein als --price-block-y (Headline UEBER dem Preis!)
-- STRIKTE REGEL: --headline-y darf NICHT zwischen 25% und 45% liegen wenn eine Person im Bild ist (verdeckt Gesichter!). Nutze 10%-22% (oben) oder 50%-60% (unten).
+- NIEMALS --location-x weit von 50% entfernen (immer 45%-55%)
+- NIEMALS --location-y ueber 8% setzen (immer oben)
+- MINDESTABSTAND: --price-block-y minus --headline-y >= 15%
+- --price-size muss IMMER mindestens 30% groesser sein als --headline-size
+- --price-glow: Variiere zwischen "0.3" (dezent lesbar) und "0.7" (leuchtend). NICHT ueber 0.8!
+- Elemente muessen INNERHALB des Canvas bleiben (5%-95%)
+- Jede Variation muss sich DEUTLICH von den anderen unterscheiden
+- VARIIERE Bildhelligkeit: dunkel (--bg-brightness: "0.45") und hell ("0.75"-"0.85") mischen
+- VARIIERE Watermark: manche MIT (--watermark-opacity: "0.04"-"0.06"), manche OHNE ("0")
+- --headline-y darf NICHT zwischen 25% und 45% liegen wenn eine Person im Bild ist
+
+Alle Positionswerte sind Prozent (z.B. "35%"), Groessen px (z.B. "100px"), --person-scale Dezimal (z.B. "0.85"), --price-glow Dezimal 0-1.
 
 Antworte NUR mit dem JSON-Array. KEIN Markdown, KEINE Erklaerungen.
-Beispiel: [{"--headline-y":"35%","--price-block-y":"68%","--person-position-x":"-8%"}]`,
+Beispiel: [{"--headline-y":"18%","--price-block-y":"68%","--price-glow":"0.4","--location-y":"4%"}]`,
 
   'template-editing': `Du bist ein Senior Frontend-Entwickler. Du bekommst ein HTML/CSS-Template und eine Aenderungsanweisung.
 

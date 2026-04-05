@@ -5,7 +5,6 @@ import type { CampaignStrategy } from '@/lib/types';
 
 const TEMPLATE_NAMES: Record<string, string> = {
   'dark-center': 'Dark Center (GYMPOD)',
-  'split-bold': 'Split Bold (wellfit)',
   'minimal-light': 'Minimal Light (JONNY M.)',
   'full-impact': 'Full Impact (Vorverkauf)',
   'editorial': 'Editorial (Magazin)',

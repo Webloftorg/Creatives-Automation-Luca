@@ -15,28 +15,32 @@ interface VariantCardProps {
 }
 
 export function VariantCard({ variant, onToggleApproved, onEdit, onRegenerate, feedback, onFeedback }: VariantCardProps) {
-  const [showComment, setShowComment] = useState(false);
+  const [showComment, setShowComment] = useState<'good' | 'bad' | null>(null);
   const [comment, setComment] = useState('');
   const [saved, setSaved] = useState(false);
 
   const handleThumbsUp = () => {
-    onFeedback('good');
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1500);
+    if (feedback === 'good') {
+      onFeedback('good');
+      setShowComment(null);
+      return;
+    }
+    setShowComment('good');
   };
 
   const handleThumbsDown = () => {
     if (feedback === 'bad') {
       onFeedback('bad');
-      setShowComment(false);
+      setShowComment(null);
       return;
     }
-    setShowComment(true);
+    setShowComment('bad');
   };
 
-  const submitBadFeedback = () => {
-    onFeedback('bad', comment || undefined);
-    setShowComment(false);
+  const submitFeedback = () => {
+    if (!showComment) return;
+    onFeedback(showComment, comment || undefined);
+    setShowComment(null);
     setComment('');
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
@@ -100,21 +104,25 @@ export function VariantCard({ variant, onToggleApproved, onEdit, onRegenerate, f
         </div>
       </div>
 
-      {/* Comment input for negative feedback */}
+      {/* Comment input for feedback */}
       {showComment && (
-        <div className="p-2 bg-[#15151e] border-t border-red-500/50">
-          <p className="text-[#9ca3af] text-[10px] uppercase tracking-wider mb-1">Was war schlecht?</p>
+        <div className={`p-2 bg-[#15151e] border-t ${showComment === 'good' ? 'border-[#22c55e]/50' : 'border-red-500/50'}`}>
+          <p className="text-[#9ca3af] text-[10px] uppercase tracking-wider mb-1">
+            {showComment === 'good' ? 'Was war gut? (optional)' : 'Was war schlecht?'}
+          </p>
           <div className="flex gap-1.5">
             <input
               value={comment}
               onChange={e => setComment(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') submitBadFeedback(); }}
+              onKeyDown={e => { if (e.key === 'Enter') submitFeedback(); }}
               className="flex-1 bg-[#0e0e15] border border-white/10 rounded px-2 py-1.5 text-white text-xs outline-none focus:border-[#00D4FF]/50"
-              placeholder="z.B. zu viel Filter, Person zu klein..."
+              placeholder={showComment === 'good' ? 'z.B. tolle Farben, Person passt...' : 'z.B. zu viel Filter, Person zu klein...'}
               autoFocus
             />
-            <button onClick={submitBadFeedback}
-              className="bg-red-600 hover:bg-red-700 text-white text-xs px-2.5 py-1.5 rounded font-semibold transition-colors">
+            <button onClick={submitFeedback}
+              className={`text-white text-xs px-2.5 py-1.5 rounded font-semibold transition-colors ${
+                showComment === 'good' ? 'bg-[#22c55e] hover:bg-[#16a34a]' : 'bg-red-600 hover:bg-red-700'
+              }`}>
               Senden
             </button>
           </div>

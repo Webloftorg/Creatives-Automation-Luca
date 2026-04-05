@@ -10,7 +10,6 @@ interface TemplatePickerProps {
 
 const STYLE_HINTS: Record<string, { emoji: string; desc: string }> = {
   'dark-center': { emoji: '\u{1F311}', desc: 'Dunkel, Person zentral, Neon-Preis' },
-  'split-bold': { emoji: '\u26A1', desc: 'Person links, Text rechts, farbiger Akzent' },
   'minimal-light': { emoji: '\u2728', desc: 'Hell, clean, minimalistisch, riesiger Preis' },
   'full-impact': { emoji: '\u{1F525}', desc: 'Farbiger BG, maximale Aufmerksamkeit' },
   'editorial': { emoji: '\u{1F4F8}', desc: 'Magazin-Stil, Person als Hintergrund' },

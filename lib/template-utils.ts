@@ -100,6 +100,7 @@ const REQUIRED_CSS_VARS: Record<string, string> = {
   '--overlay-opacity': '1',
   '--overlay-color': '0, 0, 0',
   '--headline-wrap': 'normal',
+  '--price-glow': '0.5',
 };
 
 const MIN_PX_SIZES: Record<string, number> = {
@@ -263,38 +264,38 @@ function ensureCreativeContainer(html: string): string {
 }
 
 function ensureNeonGlow(html: string): string {
-  // Check if already has a multi-layer accent-color glow on price
-  if (html.includes('0 0 60px var(--accent-color)')) return html;
-
+  // Controllable glow via --price-glow (0 = no glow, 1 = full neon)
   const neonStyle = `
 <style>
   .price {
     color: var(--accent-color) !important;
     text-shadow:
-      0 0 10px var(--accent-color),
-      0 0 30px var(--accent-color),
-      0 0 60px var(--accent-color),
-      0 0 100px var(--accent-color),
+      0 0 calc(10px * var(--price-glow, 0.5)) var(--accent-color),
+      0 0 calc(30px * var(--price-glow, 0.5)) var(--accent-color),
+      0 0 calc(60px * var(--price-glow, 0.5)) var(--accent-color),
       0 2px 4px rgba(0,0,0,0.8) !important;
-    filter: brightness(1.3) !important;
+    filter: brightness(calc(1 + 0.3 * var(--price-glow, 0.5))) !important;
   }
 </style>`;
 
-  if (html.includes('</head>')) {
-    return html.replace('</head>', `${neonStyle}\n</head>`);
+  // Remove old hardcoded neon style if present
+  let result = html.replace(/<style>\s*\.price\s*\{[^}]*0 0 60px var\(--accent-color\)[^}]*\}\s*<\/style>/g, '');
+
+  if (result.includes('</head>')) {
+    return result.replace('</head>', `${neonStyle}\n</head>`);
   }
-  return neonStyle + html;
+  return neonStyle + result;
 }
 
 // ─── CSS Variation Clamping ──────────────────────────────────────────────────
 
 const POSITION_BOUNDS: Record<string, [number, number]> = {
   '--headline-x': [40, 60],
-  '--headline-y': [10, 60],
+  '--headline-y': [10, 55],
   '--price-block-x': [35, 65],
-  '--price-block-y': [30, 85],
-  '--location-x': [15, 85],
-  '--location-y': [3, 92],
+  '--price-block-y': [55, 85],
+  '--location-x': [45, 55],     // Always centered
+  '--location-y': [3, 8],       // Always top, just below edge
   '--person-position-x': [-25, 25],
   '--person-position-y': [-5, 15],
 };
@@ -308,6 +309,7 @@ const SIZE_BOUNDS: Record<string, [number, number]> = {
   '--bg-brightness': [0.35, 1.0],
   '--bg-blur': [0, 8],
   '--overlay-opacity': [0.2, 1.0],
+  '--price-glow': [0, 1],
 };
 
 /**

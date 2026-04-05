@@ -15,6 +15,7 @@ const SLIDER_CONFIG: Record<string, { min: number; max: number; step: number; un
   // Typografie
   '--headline-size':  { min: 24, max: 140, step: 2, unit: 'px', label: 'Headline Größe', group: 'Typografie', section: 'headline' },
   '--price-size':     { min: 32, max: 180, step: 2, unit: 'px', label: 'Preis Größe', group: 'Typografie', section: 'price-block' },
+  '--price-glow':     { min: 0, max: 1, step: 0.05, unit: '', label: 'Preis Glow-Stärke', group: 'Typografie', section: 'price-block' },
   '--location-size':  { min: 14, max: 56, step: 1, unit: 'px', label: 'Standort Größe', group: 'Typografie', section: 'location' },
   '--strikethrough-size': { min: 14, max: 56, step: 1, unit: 'px', label: 'Streichpreis Größe', group: 'Typografie', section: 'price-block' },
   // Person
