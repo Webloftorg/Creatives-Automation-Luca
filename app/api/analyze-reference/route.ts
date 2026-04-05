@@ -31,8 +31,8 @@ VERFUEGBARE TEMPLATES:
 
 CSS-VARIABLEN (Positionen in %, Groessen in px):
 - --location-x: IMMER "50%" (zentriert), --location-y: "3%" bis "6%" (oben)
-- --headline-x: "50%" (zentriert), --headline-y: "12%" bis "50%"
-- --price-block-x: "50%", --price-block-y: "60%" bis "80%"
+- --headline-x: "50%" (zentriert), --headline-y: "5%" bis "18%" (NIEMALS tiefer! Gesichtszone ab 20% ist TABU!)
+- --price-block-x: "50%", --price-block-y: "65%" bis "82%"
 - --headline-size: 60-140px, --price-size: 80-200px (IMMER > headline!)
 - --price-glow: 0.3-0.6 (Neon-Intensitaet, NICHT ueber 0.6 - sonst unleserlich!)
 - --person-scale: 0.5-1.1, --person-position-x/y

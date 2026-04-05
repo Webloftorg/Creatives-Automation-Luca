@@ -35,10 +35,12 @@ KEIN Markdown, KEINE Erklaerungen. NUR das JSON-Array.`,
 Du bekommst eine Liste von CSS-Variablen mit aktuellen Werten und sollst diverse Layout-Variationen erstellen, indem du NUR die Werte aenderst.
 
 LAYOUT-HIERARCHIE (STRIKT - Nutzerführung von oben nach unten):
-1. LOCATION: Immer ganz oben, zentriert (--location-x: "50%", --location-y: "3%" bis "6%"). Dezent, klein, weiss.
-2. HEADLINE: Darunter, zentriert (--headline-x: "50%", --headline-y: "12%" bis "50%"). Grosser Scroll-Stopper.
-3. PREIS-BLOCK: Unter der Headline (--price-block-x: "50%", --price-block-y: "60%" bis "80%"). Das Angebot.
-4. PERSON: Im Hintergrund/Vordergrund, emotionaler Anker.
+1. LOCATION: Ganz oben, zentriert (--location-x: "50%", --location-y: "3%" bis "5%"). Dezent, klein, weiss.
+2. HEADLINE: Direkt darunter (--headline-x: "50%", --headline-y: "5%" bis "18%"). NIEMALS tiefer als 18%!
+3. PERSON: Mitte des Bildes (20%-65%) - Gesicht IMMER komplett frei von Text!
+4. PREIS-BLOCK: Ganz unten (--price-block-x: "50%", --price-block-y: "65%" bis "82%"). Das Angebot.
+
+GESICHTSZONE 20%-60% IST ABSOLUT TABU FUER TEXT! Headlines MUESSEN im Bereich 5%-18% bleiben!
 
 Der Blick des Betrachters MUSS natuerlich von oben nach unten gefuehrt werden: Location → Headline → Preis.
 

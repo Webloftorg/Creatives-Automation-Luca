@@ -16,7 +16,8 @@ export function replacePlaceholders(html: string, values: Record<string, string>
     if (RAW_KEYS.has(key)) return val;
     let escaped = escapeHtml(val);
     if (MULTILINE_KEYS.has(key)) {
-      escaped = escaped.replace(/\n/g, '<br>');
+      // Each line break gets a hyphen at the end of the previous line
+      escaped = escaped.replace(/\n/g, '-<br>');
     }
     return escaped;
   });
@@ -75,7 +76,7 @@ function camelToTitle(str: string): string {
 
 const REQUIRED_CSS_VARS: Record<string, string> = {
   '--bg-blur': '6px',
-  '--bg-brightness': '0.35',
+  '--bg-brightness': '0.75',
   '--headline-size': '90px',
   '--price-size': '120px',
   '--person-scale': '0.85',
@@ -89,9 +90,9 @@ const REQUIRED_CSS_VARS: Record<string, string> = {
   '--location-x': '50%',
   '--location-y': '4%',
   '--headline-x': '50%',
-  '--headline-y': '52%',
+  '--headline-y': '12%',
   '--price-block-x': '50%',
-  '--price-block-y': '70%',
+  '--price-block-y': '72%',
   '--watermark-size': '180px',
   '--watermark-opacity': '0.06',
   '--watermark-rotation': '-15deg',
@@ -293,11 +294,11 @@ function ensureNeonGlow(html: string): string {
 
 const POSITION_BOUNDS: Record<string, [number, number]> = {
   '--headline-x': [40, 60],
-  '--headline-y': [10, 55],
+  '--headline-y': [5, 18],       // TOP ZONE ONLY - never over faces (faces are 25-55%)
   '--price-block-x': [35, 65],
-  '--price-block-y': [55, 85],
+  '--price-block-y': [65, 82],   // BOTTOM ZONE ONLY - below person
   '--location-x': [45, 55],     // Always centered
-  '--location-y': [3, 8],       // Always top, just below edge
+  '--location-y': [2, 6],       // Always top, just below edge
   '--person-position-x': [-25, 25],
   '--person-position-y': [-5, 15],
 };

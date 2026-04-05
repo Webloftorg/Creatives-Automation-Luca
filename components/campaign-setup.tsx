@@ -335,25 +335,57 @@ export function CampaignSetup({ studioId, onGenerate, loading }: CampaignSetupPr
               {/* Headlines + Preis + Generate Button */}
               <div className="bg-[#050507] border border-white/[0.06] rounded-xl p-4 space-y-3">
                 <label className="text-[#9ca3af] text-xs uppercase tracking-wider block">Headlines & Preis</label>
-                <div className="space-y-2">
-                  {headlines.map((headline, index) => (
-                    <div key={index} className="flex gap-2">
-                      <textarea
-                        value={headline}
-                        onChange={e => updateHeadline(index, e.target.value)}
-                        rows={2}
-                        className="flex-1 bg-[#0e0e15] border border-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none resize-none"
-                        placeholder={`Headline ${index + 1} (Enter = Zeilenumbruch)`}
-                      />
-                      {headlines.length > 1 && (
-                        <button onClick={() => removeHeadline(index)}
-                          className="text-[#6b7280] hover:text-red-400 text-sm px-2">x</button>
-                      )}
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  {headlines.map((headline, index) => {
+                    const lines = headline.split('\n');
+                    return (
+                      <div key={index} className="bg-[#0e0e15] border border-white/10 rounded-lg p-3">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[#6b7280] text-[10px] uppercase tracking-wider">Headline {index + 1}</span>
+                          <div className="flex gap-2 items-center">
+                            <span className="text-[#4b5563] text-[10px]">{lines.length} {lines.length === 1 ? 'Zeile' : 'Zeilen'}</span>
+                            {headlines.length > 1 && (
+                              <button onClick={() => removeHeadline(index)}
+                                className="text-[#6b7280] hover:text-red-400 text-xs">x</button>
+                            )}
+                          </div>
+                        </div>
+                        {/* Line-by-line editor */}
+                        <div className="space-y-1">
+                          {lines.map((line, lineIdx) => (
+                            <div key={lineIdx} className="flex items-center gap-1">
+                              {lineIdx > 0 && (
+                                <span className="text-[#00D4FF] text-[10px] font-mono w-3 flex-shrink-0">-</span>
+                              )}
+                              {lineIdx === 0 && <span className="w-3 flex-shrink-0" />}
+                              <input
+                                value={line}
+                                onChange={e => {
+                                  const newLines = [...lines];
+                                  newLines[lineIdx] = e.target.value;
+                                  updateHeadline(index, newLines.join('\n'));
+                                }}
+                                className="flex-1 bg-transparent text-white text-sm font-bold outline-none uppercase"
+                                placeholder={lineIdx === 0 ? 'z.B. MONATLICH' : 'z.B. KUENDBAR'}
+                              />
+                              {lines.length > 1 && (
+                                <button onClick={() => {
+                                  const newLines = lines.filter((_, i) => i !== lineIdx);
+                                  updateHeadline(index, newLines.join('\n'));
+                                }}
+                                  className="text-[#4b5563] hover:text-red-400 text-[10px] flex-shrink-0">×</button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <button onClick={() => updateHeadline(index, headline + '\n')}
+                          className="text-[#00D4FF] text-[10px] hover:text-[#00b4d8] font-semibold mt-2">+ Zeile hinzufuegen (Umbruch mit Bindestrich)</button>
+                      </div>
+                    );
+                  })}
                   {headlines.length < 5 && (
                     <button onClick={addHeadline}
-                      className="text-[#00D4FF] text-xs hover:text-[#00b4d8] font-semibold">+ Headline</button>
+                      className="text-[#00D4FF] text-xs hover:text-[#00b4d8] font-semibold">+ Weitere Headline-Variante</button>
                   )}
                 </div>
                 <div className="flex gap-3">

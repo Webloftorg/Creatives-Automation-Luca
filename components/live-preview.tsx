@@ -29,7 +29,7 @@ const IFRAME_SCRIPT = `
         if (el.classList.contains('original-price')) {
           el.textContent = 'Statt ' + e.data.value;
         } else if (e.data.field === 'headline') {
-          el.innerHTML = safeVal.replace(/\\n/g, '<br>');
+          el.innerHTML = safeVal.replace(/\\n/g, '-<br>');
         } else {
           el.textContent = e.data.value;
         }
