@@ -333,6 +333,20 @@ export default function CampaignsPage() {
             rendering={rendering}
             onFeedback={handleFeedback}
             feedbackMap={feedbackMap}
+            onUpdateAllVariants={updater => {
+              const updated = {
+                ...activeCampaign,
+                variants: activeCampaign.variants.map(updater),
+                updatedAt: new Date().toISOString(),
+              };
+              setActiveCampaign(updated);
+              // Save to DB
+              fetch(`/api/campaigns/${activeCampaign.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updated),
+              });
+            }}
           />
         </div>
         {editingVariant && (
