@@ -103,15 +103,14 @@ async function generateHeadlines(
   }
 }
 
-async function detectFacePosition(imagePath: string, studioId: string): Promise<{ x: number; y: number; height: number } | null> {
+async function detectFacePosition(imagePath: string, studioId: string, req?: NextRequest): Promise<{ x: number; y: number; height: number } | null> {
   try {
-    const storage = getStorage();
-    await storage.init();
-    // Read the image file
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    const fullPath = path.join(process.cwd(), 'data', imagePath);
-    const imageBuffer = await fs.readFile(fullPath);
+    // Fetch image via serve API (works for both filesystem and Supabase)
+    const origin = req?.nextUrl.origin || 'http://localhost:3000';
+    const imageUrl = `${origin}/api/assets/serve?path=${encodeURIComponent(imagePath)}`;
+    const imgRes = await fetch(imageUrl);
+    if (!imgRes.ok) return null;
+    const imageBuffer = Buffer.from(await imgRes.arrayBuffer());
     const base64 = imageBuffer.toString('base64');
 
     const message = await anthropic.messages.create({
@@ -211,6 +210,12 @@ async function generateImage(
     console.error('Image generation failed:', err);
     return null;
   }
+}
+
+function getAssetUrl(req: NextRequest, assetPath: string): string {
+  if (!assetPath) return '';
+  const origin = req.nextUrl.origin;
+  return `${origin}/api/assets/serve?path=${encodeURIComponent(assetPath)}`;
 }
 
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -411,7 +416,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     if (hasStrategyOverrides) {
       for (const bgPath of bgPaths) {
         if (bgPath) {
-          const face = await detectFacePosition(bgPath, campaign.studioId);
+          const face = await detectFacePosition(bgPath, campaign.studioId, _req);
           if (face) facePositions.set(bgPath, face);
         }
       }
@@ -422,9 +427,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
     for (const headlineObj of headlines) {
       for (const bgPath of bgPaths) {
-        const bgUrl = bgPath
-          ? `http://localhost:3000/api/assets/serve?path=${encodeURIComponent(bgPath)}`
-          : '';
+        const bgUrl = getAssetUrl(_req, bgPath);
 
         // Adjust headline position to avoid face
         const face = facePositions.get(bgPath);
@@ -451,9 +454,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
         }
 
         for (const personPath of scenePaths) {
-          const personUrl = personPath
-            ? `http://localhost:3000/api/assets/serve?path=${encodeURIComponent(personPath)}`
-            : '';
+          const personUrl = getAssetUrl(_req, personPath);
 
           for (const rawOverride of allVariations) {
             const mergedOverride = { ...rawOverride, ...faceAvoidOverride };
